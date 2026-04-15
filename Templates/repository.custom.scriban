@@ -1,0 +1,9 @@
+// !!!CODE_GEN_REPLACE!!! Remove this line if edited, to prevent code generation overwriting/replacing this file
+#nullable enable
+
+namespace {{ options.RepositoryNamespace }};
+
+public partial class {{ model.Name }}Repository
+{
+    // Add custom repository logic here.
+}

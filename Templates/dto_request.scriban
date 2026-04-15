@@ -1,0 +1,22 @@
+// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+#nullable enable
+using System.CodeDom.Compiler;
+
+namespace App.Dto.{{ model.PluralName }}.Requests;
+
+[GeneratedCode("{{ tool.name }}", "{{ tool.version }}")]
+public class {{ if artifact.name == "dto_request_create" }}Create{{ model.Name }}Request{{ else if artifact.name == "dto_request_update" }}Update{{ model.Name }}Request{{ else }}Upsert{{ model.Name }}Request{{ end }}
+{
+{{ if (artifact.name == "dto_request_update" || artifact.name == "dto_request_upsert") && model.HasId }}
+    public {{ artifact.primary_key_type }}? Id { get; set; }
+{{ end }}
+{{ for prop in model.Properties }}
+{{ if (artifact.name == "dto_request_create" && prop.IncludeInCreateRequest) || ((artifact.name == "dto_request_update" || artifact.name == "dto_request_upsert") && prop.IncludeInUpdateRequest) }}
+    public {{ prop.RequestTypeName }} {{ prop.Name }} { get; set; }
+{{ end }}
+{{ end }}
+}

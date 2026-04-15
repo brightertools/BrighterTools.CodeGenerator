@@ -1,0 +1,45 @@
+// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+#nullable enable
+
+using System.CodeDom.Compiler;
+using App.Data;
+using App.Data.Repositories;
+using {{ options.TenantNamespace }};
+using App.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace App.Configuration;
+
+[GeneratedCode("{{ tool.name }}", "{{ tool.version }}")]
+public static class GeneratedAppDataServiceExtensions
+{
+    public static IServiceCollection AddGeneratedDataServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddDbContext<ApplicationDbContext>(options => options
+            .EnableSensitiveDataLogging()
+            .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure();
+                sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            }));
+
+{{ for model in repository_models }}
+        services.AddScoped<I{{ model.RepositoryName }}, {{ model.RepositoryName }}>();
+{{ end }}
+
+{{ for model in service_models }}
+        services.AddScoped<I{{ model.ServiceName }}, {{ model.ServiceName }}>();
+{{ end }}
+
+        return services;
+    }
+}

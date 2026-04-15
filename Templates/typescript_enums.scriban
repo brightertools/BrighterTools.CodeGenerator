@@ -1,0 +1,14 @@
+// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+
+{{ for enum in enums }}
+export enum {{ enum.Name }} {
+{{ for member in enum.Members }}
+    {{ member.Name }} = {{ member.ValueLiteral }}{{ if for.last == false }},{{ end }}
+{{ end }}
+}
+
+{{ end }}

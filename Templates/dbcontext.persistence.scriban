@@ -1,0 +1,249 @@
+// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+#nullable enable
+
+using System.ComponentModel;
+using {{ options.DataNamespace }};
+using {{ options.ModelNamespace }};
+using {{ options.ModelNamespace }}.Helpers;
+using {{ options.ModelNamespace }}.JsonModels;
+{{ for model in models }}
+{{ if model.RequiresEntityTypeAlias }}
+using {{ model.EntityTypeAlias }} = {{ model.QualifiedName }};
+{{ end }}
+{{ end }}
+using Microsoft.EntityFrameworkCore;
+
+namespace {{ options.DataNamespace }};
+
+public partial class ApplicationDbContext
+{
+    private static readonly HashSet<Type> TenantScopedEntityTypes =
+    [
+{{ for model in models }}
+{{ if !model.IsJsonModel && !model.IsBaseModel && model.HasTenantId }}
+        typeof({{ model.EntityTypeReference }}),
+{{ end }}
+{{ end }}
+    ];
+
+    public Task<int> Save<T>(T entity, int? userId = null) where T : class
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+        return SaveEntities(new[] { entity }, userId);
+    }
+
+    public virtual async Task<int> SaveEntities<T>(IEnumerable<T> entities, int? userId = null) where T : class
+    {
+        ArgumentNullException.ThrowIfNull(entities);
+
+        var bufferedEntities = entities.Where(x => x is not null).ToList();
+        if (bufferedEntities.Count == 0)
+        {
+            return 0;
+        }
+
+        foreach (var entity in bufferedEntities)
+        {
+            var entry = Entry(entity);
+            if (entry.State == EntityState.Detached)
+            {
+                if (!entry.IsKeySet)
+                {
+                    await Set<T>().AddAsync(entity);
+                }
+                else
+                {
+                    Set<T>().Attach(entity);
+                    entry.State = EntityState.Modified;
+                }
+            }
+        }
+
+        ApplyTenantId(bufferedEntities.Cast<object>());
+        PrepareForSaving();
+        CreateAuditLog(userId, bufferedEntities.Cast<object>());
+
+        return await base.SaveChangesAsync();
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var modifiedEntities = ChangeTracker.Entries()
+            .Where(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged)
+            .Select(x => x.Entity)
+            .ToList();
+
+        ApplyTenantId(modifiedEntities);
+        PrepareForSaving();
+        CreateAuditLog(CurrentUserId, modifiedEntities);
+
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Task<int> SaveChangesWithNoTenantChecksAsync(CancellationToken cancellationToken = default)
+    {
+        PrepareForSaving();
+        CreateAuditLog(0, null);
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void ApplyTenantId(IEnumerable<object>? entities)
+    {
+        foreach (var entity in entities ?? Enumerable.Empty<object>())
+        {
+            var entityType = entity.GetType();
+            if (!TenantScopedEntityTypes.Contains(entityType))
+            {
+                continue;
+            }
+
+            var tenantIdProperty = entityType.GetProperty("TenantId");
+            if (tenantIdProperty is null)
+            {
+                continue;
+            }
+
+            var currentValue = tenantIdProperty.PropertyType == typeof(int)
+                ? (int?)tenantIdProperty.GetValue(entity)
+                : tenantIdProperty.GetValue(entity) as int?;
+
+            if (CurrentTenantId == 0 && (!currentValue.HasValue || currentValue.Value == 0))
+            {
+                throw new InvalidOperationException($"Cannot save '{entityType.Name}' because tenant cannot be resolved.");
+            }
+
+            if (!currentValue.HasValue || currentValue.Value == 0)
+            {
+                tenantIdProperty.SetValue(entity, CurrentTenantId);
+            }
+            else if (CurrentTenantId > 0 && currentValue.Value != CurrentTenantId)
+            {
+                throw new InvalidOperationException($"Cross-tenant save detected for '{entityType.Name}'.");
+            }
+        }
+    }
+
+    private void PrepareForSaving()
+    {
+        var now = DateTimeOffset.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries().Where(x => x.State is EntityState.Added or EntityState.Modified))
+        {
+            ApplyTimestamp(entry.Entity, "LastUpdatedDate", now);
+
+            if (entry.State == EntityState.Added)
+            {
+                ApplyTimestamp(entry.Entity, "CreatedDate", now, onlyWhenDefault: true);
+            }
+        }
+    }
+
+    private static void ApplyTimestamp(object entity, string propertyName, DateTimeOffset value, bool onlyWhenDefault = false)
+    {
+        var property = entity.GetType().GetProperty(propertyName);
+        if (property is null)
+        {
+            return;
+        }
+
+        if (property.PropertyType == typeof(DateTimeOffset))
+        {
+            var current = (DateTimeOffset)property.GetValue(entity)!;
+            if (!onlyWhenDefault || current == DateTimeOffset.MinValue)
+            {
+                property.SetValue(entity, value);
+            }
+
+            return;
+        }
+
+        if (property.PropertyType == typeof(DateTimeOffset?))
+        {
+            var current = (DateTimeOffset?)property.GetValue(entity);
+            if (!onlyWhenDefault || current is null || current == DateTimeOffset.MinValue)
+            {
+                property.SetValue(entity, value);
+            }
+        }
+    }
+
+    private void CreateAuditLog(long? userId, IEnumerable<object>? entities)
+    {
+        ChangeTracker.DetectChanges();
+
+        var relevantEntries = ChangeTracker.Entries()
+            .Where(entry =>
+                entry.Entity is not AuditLog &&
+                entry.State != EntityState.Detached &&
+                entry.State != EntityState.Unchanged &&
+                entry.Entity.GetType().Name != nameof(UserRefreshToken) &&
+                (entities == null || entities.Contains(entry.Entity)))
+            .Select(entry => new AuditEntry(entry)
+            {
+                TableName = entry.Entity.GetType().Name,
+                TenantId = CurrentTenantId,
+                UserId = userId
+            })
+            .ToList();
+
+        foreach (var auditEntry in relevantEntries)
+        {
+            var entry = auditEntry.Entry;
+            auditEntry.AuditLogType = entry.State switch
+            {
+                EntityState.Added => AuditLogType.Create,
+                EntityState.Deleted => AuditLogType.Delete,
+                EntityState.Modified => AuditLogType.Update,
+                _ => auditEntry.AuditLogType
+            };
+
+            foreach (var property in entry.Properties)
+            {
+                var propertyName = property.Metadata.Name;
+
+                if (propertyName.Contains("Key", StringComparison.OrdinalIgnoreCase)
+                    || propertyName.Contains("Password", StringComparison.OrdinalIgnoreCase)
+                    || propertyName.Contains("Token", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (property.Metadata.IsPrimaryKey())
+                {
+                    auditEntry.KeyValues[propertyName] = property.CurrentValue ?? string.Empty;
+                    continue;
+                }
+
+                if (property.Metadata.IsForeignKey())
+                {
+                    auditEntry.ChangedColumns.Add(propertyName);
+                    auditEntry.OldValues[propertyName] = property.OriginalValue ?? string.Empty;
+                    auditEntry.NewValues[propertyName] = property.CurrentValue ?? string.Empty;
+                }
+
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        auditEntry.NewValues[propertyName] = property.CurrentValue ?? string.Empty;
+                        break;
+                    case EntityState.Deleted:
+                        auditEntry.OldValues[propertyName] = property.OriginalValue ?? string.Empty;
+                        break;
+                    case EntityState.Modified when property.IsModified:
+                        auditEntry.ChangedColumns.Add(propertyName);
+                        auditEntry.OldValues[propertyName] = property.OriginalValue ?? string.Empty;
+                        auditEntry.NewValues[propertyName] = property.CurrentValue ?? string.Empty;
+                        break;
+                }
+            }
+
+            AuditLogs.Add(auditEntry.ToAudit());
+        }
+    }
+}

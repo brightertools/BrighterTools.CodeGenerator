@@ -1,0 +1,317 @@
+﻿// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+
+using {{ options.ListRequestNamespace }};
+using {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests;
+using {{ options.DtoNamespace }}.{{ model.PluralName }}.Responses;
+using App.Data;
+{{ model.EntityTypeUsingDirective }}
+using App.Security.MultiTenancy;
+using Asp.Versioning;
+using Mapster;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Create{{ model.Name }}DtoRequest = {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests.Create{{ model.Name }}Request;
+using Update{{ model.Name }}DtoRequest = {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests.Update{{ model.Name }}Request;
+using Upsert{{ model.Name }}DtoRequest = {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests.Upsert{{ model.Name }}Request;
+using Generated{{ model.Name }}AppService = {{ options.ServiceNamespace }}.I{{ model.Name }}Service;
+
+namespace {{ options.ControllerNamespace }};
+/// <summary>
+/// {{ model.PluralName }} Controller
+/// </summary>
+[ApiExplorerSettings(IgnoreApi = true)]
+[ApiVersion("1.0")]
+[Authorize]
+public partial class Generated{{ model.PluralName }}Controller : BaseController<Generated{{ model.PluralName }}Controller>
+{
+    /// <summary>
+    /// Memory cache
+    /// </summary>
+    public readonly IMemoryCache _cache;
+    /// <summary>
+    /// {{ model.Name }} Service
+    /// </summary>
+    public readonly Generated{{ model.Name }}AppService _{{ model.Name }}Service;
+    /// <summary>
+    /// Tenant Id
+    /// </summary>
+    public readonly int _tenantId;
+    /// <summary>
+    /// {{ model.PluralName }} Controller (Auto-Generated)
+    /// </summary>
+    public Generated{{ model.PluralName }}Controller(
+        ILogger<Generated{{ model.PluralName }}Controller> logger,
+        IMemoryCache cache,
+        ITenantGetter tenantGetter,
+        Generated{{ model.Name }}AppService {{ model.Name }}Service) : base(logger)
+    {
+        _cache = cache;
+        _{{ model.Name }}Service = {{ model.Name }}Service;
+        _tenantId = tenantGetter?.Tenant?.Id ?? 0;
+    }
+    /// <summary>
+    /// Creates a new {{ model.Name }}.
+    /// </summary>
+    /// <param name="request">The create request.</param>
+    /// <returns>An action result containing the created {{ model.Name }} response.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpPost("Create")]
+    public virtual async Task<ActionResult> Create([FromBody] Create{{ model.Name }}Request request)
+    {
+        var result = await _{{ model.Name }}Service.Create(request.Adapt<Create{{ model.Name }}DtoRequest>(), ApplicationUser!.Id);
+        return result.Succeeded
+            ? ApiResponse<{{ model.Name }}Response>.Ok(result.Content!.Adapt<{{ model.Name }}Response>())
+            : ApiResponse<object>.Error(result.Message);
+    }
+    /// <summary>
+    /// Creates or updates a {{ model.Name }}.
+    /// </summary>
+    /// <param name="request">The upsert request.</param>
+    /// <returns>An action result containing the upserted {{ model.Name }} response.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("Upsert")]
+    public virtual async Task<ActionResult> Upsert([FromBody] Upsert{{ model.Name }}Request request)
+    {
+        var result = await _{{ model.Name }}Service.Upsert(request.Adapt<Upsert{{ model.Name }}DtoRequest>());
+        return result.Succeeded
+            ? ApiResponse<{{ model.Name }}Response>.Ok(result.Content!.Adapt<{{ model.Name }}Response>())
+            : ApiResponse<object>.Error(result.Message);
+    }
+    /// <summary>
+    /// Gets a {{ model.Name }} by identifier.
+    /// </summary>
+    /// <param name="id">The entity identifier.</param>
+    /// <returns>An action result containing the requested {{ model.Name }} response.</returns>
+    [ApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpGet("Get")]
+    public virtual async Task<ActionResult> Get([FromQuery] int? id)
+    {
+        if (!id.HasValue)
+        {
+            return ApiResponse<object>.Error("Id not specified");
+        }
+
+        var result = await _{{ model.Name }}Service.GetById(id.Value);
+        return result.Succeeded
+            ? ApiResponse<{{ model.Name }}Response>.Ok(result.Content!.Adapt<{{ model.Name }}Response>())
+            : ApiResponse<object>.Error("{{ model.Name }} not found");
+    }
+{{ if model.HasGuid }}
+    /// <summary>
+    /// Gets a {{ model.Name }} by guid.
+    /// </summary>
+    /// <param name="guid">The entity guid.</param>
+    /// <returns>An action result containing the requested {{ model.Name }} response.</returns>
+    [ApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpGet("GetByGuid")]
+    public virtual async Task<ActionResult> GetByGuid([FromQuery] Guid? guid)
+    {
+        if (!guid.HasValue)
+        {
+            return ApiResponse<object>.Error("Guid not specified");
+        }
+
+        var result = await _{{ model.Name }}Service.GetByGuid(guid.Value);
+        return result.Succeeded
+            ? ApiResponse<{{ model.Name }}Response>.Ok(result.Content!.Adapt<{{ model.Name }}Response>())
+            : ApiResponse<object>.Error("{{ model.Name }} not found");
+    }
+{{ end }}
+    /// <summary>
+    /// Lists {{ model.PluralName | string.downcase }}.
+    /// </summary>
+    /// <param name="request">The list request.</param>
+    /// <returns>An action result containing the filtered {{ model.PluralName | string.downcase }}.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpPost("List")]
+    public virtual async Task<ActionResult> List([FromBody] ListRequest request)
+    {
+        var result = await _{{ model.Name }}Service.List(request, true);
+        return result.Succeeded
+            ? ApiResponse<ListResult<{{ model.EntityTypeReference }}>>.Ok(result.Content!)
+            : ApiResponse<object>.Error(result.Message);
+    }
+    /// <summary>
+    /// Updates a {{ model.Name }}.
+    /// </summary>
+    /// <param name="request">The update request.</param>
+    /// <returns>An action result containing the updated {{ model.Name }} response.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("Update")]
+    public virtual async Task<ActionResult> Update([FromBody] Update{{ model.Name }}Request request)
+    {
+        var result = await _{{ model.Name }}Service.Update(request.Adapt<Update{{ model.Name }}DtoRequest>());
+        return result.Succeeded
+            ? ApiResponse<{{ model.Name }}Response>.Ok(result.Content!.Adapt<{{ model.Name }}Response>())
+            : ApiResponse<object>.Error(result.Message);
+    }
+    /// <summary>
+    /// Deletes a {{ model.Name }} by identifier.
+    /// </summary>
+    /// <param name="id">The entity identifier.</param>
+    /// <returns>An action result describing the delete outcome.</returns>
+    [HttpDelete("Delete")]
+    public virtual async Task<ActionResult> Delete([FromQuery] int? id)
+    {
+        if (!id.HasValue)
+        {
+            return ApiResponse<object>.Error("Id not specified");
+        }
+
+        var deleteResult = await _{{ model.Name }}Service.Delete(id.Value, ApplicationUser!.Id);
+        return deleteResult.Succeeded ? ApiResponse<object>.Ok(true) : ApiResponse<object>.Error(deleteResult.Message);
+    }
+{{ if model.HasGuid }}
+    /// <summary>
+    /// Deletes a {{ model.Name }} by guid.
+    /// </summary>
+    /// <param name="guid">The entity guid.</param>
+    /// <returns>An action result describing the delete outcome.</returns>
+    [HttpDelete("DeleteByGuid")]
+    public virtual async Task<ActionResult> DeleteByGuid([FromQuery] Guid? guid)
+    {
+        if (!guid.HasValue)
+        {
+            return ApiResponse<object>.Error("Guid not specified");
+        }
+
+        var entityResult = await _{{ model.Name }}Service.GetByGuid(guid.Value);
+        if (entityResult.Failed || entityResult.Content is null)
+        {
+            return ApiResponse<object>.Error("{{ model.Name }} not found");
+        }
+
+        var deleteResult = await _{{ model.Name }}Service.Delete(entityResult.Content.Id, ApplicationUser!.Id);
+        return deleteResult.Succeeded ? ApiResponse<object>.Ok(true) : ApiResponse<object>.Error(deleteResult.Message);
+    }
+{{ end }}
+{{ for prop in model.SettableStateProperties }}
+{{ if prop.NonNullableDisplayType == "bool" }}
+    /// <summary>
+    /// Sets the {{ prop.Name | string.downcase }} state for a {{ model.Name }} by identifier.
+    /// </summary>
+    /// <param name="request">The state change request.</param>
+    /// <returns>An action result describing the state change outcome.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("Set{{ prop.Name }}")]
+    public virtual async Task<ActionResult> Set{{ prop.Name }}([FromBody] SetBooleanRequest request)
+    {
+        if (!request.Id.HasValue)
+        {
+            return ApiResponse<object>.Error("Id not specified");
+        }
+
+        if (!request.Value.HasValue)
+        {
+            return ApiResponse<object>.Error("Value not specified");
+        }
+
+        var result = await _{{ model.Name }}Service.Set{{ prop.Name }}ById(request.Id.Value, request.Value.Value, ApplicationUser?.Id ?? 0);
+        return result.Succeeded ? ApiResponse<object>.Ok(true) : ApiResponse<object>.Error(result.Message);
+    }
+{{ if model.HasGuid }}
+    /// <summary>
+    /// Sets the {{ prop.Name | string.downcase }} state for a {{ model.Name }} by guid.
+    /// </summary>
+    /// <param name="request">The state change request.</param>
+    /// <returns>An action result describing the state change outcome.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("Set{{ prop.Name }}ByGuid")]
+    public virtual async Task<ActionResult> Set{{ prop.Name }}ByGuid([FromBody] SetBooleanRequest request)
+    {
+        if (!request.Guid.HasValue)
+        {
+            return ApiResponse<object>.Error("Guid not specified");
+        }
+
+        if (!request.Value.HasValue)
+        {
+            return ApiResponse<object>.Error("Value not specified");
+        }
+
+        var result = await _{{ model.Name }}Service.Set{{ prop.Name }}ByGuid(request.Guid.Value, request.Value.Value, ApplicationUser?.Id ?? 0);
+        return result.Succeeded ? ApiResponse<object>.Ok(true) : ApiResponse<object>.Error(result.Message);
+    }
+{{ end }}
+{{ end }}
+{{ end }}
+{{ if model.HasOrder }}
+    /// <summary>
+    /// Changes the order of a {{ model.Name }}.
+    /// </summary>
+    /// <param name="request">The order change request.</param>
+    /// <returns>An action result describing the order change outcome.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("ChangeOrder")]
+    public virtual async Task<ActionResult> ChangeOrder([FromBody] ChangeOrderRequest request)
+    {
+        var listRequest = new ListRequest
+        {
+            ForeignKeyFilters = request.ForeignKeyFilters,
+            EnumFilters = request.EnumFilters
+        };
+
+        var result = await _{{ model.Name }}Service.ChangeOrder(request.Id, request.MoveUp, listRequest);
+        return result.Succeeded ? ApiResponse<object>.Ok(true) : ApiResponse<object>.Error(result.Message);
+    }
+    /// <summary>
+    /// Moves a {{ model.Name }} to a specific index.
+    /// </summary>
+    /// <param name="request">The target index request.</param>
+    /// <returns>An action result describing the move outcome.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("MoveToIndex")]
+    public virtual async Task<ActionResult> MoveToIndex([FromBody] MoveOrderToIndexRequest request)
+    {
+        var listRequest = new ListRequest
+        {
+            ForeignKeyFilters = request.ForeignKeyFilters,
+            EnumFilters = request.EnumFilters
+        };
+
+        var result = await _{{ model.Name }}Service.MoveToIndex(request.Id, request.Index, listRequest);
+        return result.Succeeded ? ApiResponse<object>.Ok(true) : ApiResponse<object>.Error(result.Message);
+    }
+    /// <summary>
+    /// Deletes a {{ model.Name }} and reorders the remaining items.
+    /// </summary>
+    /// <param name="request">The delete and reorder request.</param>
+    /// <returns>An action result describing the delete and reorder outcome.</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("DeleteAndReorder")]
+    public virtual async Task<ActionResult> DeleteAndReorder([FromBody] DeleteAndReorderRequest request)
+    {
+        var listRequest = new ListRequest
+        {
+            ForeignKeyFilters = request.ForeignKeyFilters,
+            EnumFilters = request.EnumFilters
+        };
+
+        var result = await _{{ model.Name }}Service.DeleteAndReorder(request.Id, listRequest);
+        return result.Succeeded ? ApiResponse<object>.Ok(true) : ApiResponse<object>.Error(result.Message);
+    }
+{{ end }}
+}
+
+
+
+
+

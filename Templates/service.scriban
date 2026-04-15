@@ -1,0 +1,249 @@
+// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+#nullable enable
+
+using System.CodeDom.Compiler;
+using Microsoft.Extensions.Logging;
+using {{ options.RepositoryNamespace }};
+{{ model.EntityTypeUsingDirective }}
+using {{ options.ListRequestNamespace }};
+using {{ options.ServiceResultNamespace }};
+{{ if options.ListResultNamespace != options.ServiceResultNamespace }}using {{ options.ListResultNamespace }};{{ end }}
+using {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests;
+
+namespace {{ options.ServiceNamespace }};
+
+[GeneratedCode("{{ tool.name }}", "{{ tool.version }}")]
+public partial interface I{{ model.Name }}Service
+{
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> Create(Create{{ model.Name }}Request request, {{ artifact.user_id_type }}? userId = null);
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> Update(Update{{ model.Name }}Request request, {{ artifact.user_id_type }}? userId = null);
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> Upsert(Upsert{{ model.Name }}Request request, {{ artifact.user_id_type }}? userId = null);
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> GetById({{ artifact.primary_key_type }} id, bool tracking = false, params string[] includes);
+{{ if model.HasGuid }}
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> GetByGuid(Guid guid, bool tracking = false, params string[] includes);
+{{ end }}
+{{ if model.NameLookupProperty }}
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> GetByName({{ model.NameLookupProperty.NonNullableDisplayType }} name, bool tracking = false, params string[] includes);
+{{ end }}
+{{ if model.EmailLookupProperty }}
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> GetByEmail({{ model.EmailLookupProperty.NonNullableDisplayType }} email, bool tracking = false, params string[] includes);
+{{ end }}
+{{ if model.HandleLookupProperty }}
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> GetByHandle({{ model.HandleLookupProperty.NonNullableDisplayType }} handle, bool tracking = false, params string[] includes);
+{{ end }}
+{{ if model.SlugLookupProperty }}
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> GetBySlug({{ model.SlugLookupProperty.NonNullableDisplayType }} slug, bool tracking = false, params string[] includes);
+{{ end }}
+{{ for prop in model.KeyLookupProperties }}
+    Task<ServiceResult<{{ model.EntityTypeReference }}>> GetBy{{ prop.Name }}({{ prop.NonNullableDisplayType }} value, bool tracking = false, params string[] includes);
+{{ end }}
+{{ for prop in model.SettableStateProperties }}
+    Task<ServiceResult<bool>> Set{{ prop.Name }}ById({{ artifact.primary_key_type }} id, {{ prop.NonNullableDisplayType }} value, {{ artifact.user_id_type }}? userId = null);
+{{ if model.HasGuid }}
+    Task<ServiceResult<bool>> Set{{ prop.Name }}ByGuid(Guid guid, {{ prop.NonNullableDisplayType }} value, {{ artifact.user_id_type }}? userId = null);
+{{ end }}
+{{ end }}
+{{ if model.HasOrder }}
+    Task<ServiceResult<bool>> ChangeOrder({{ artifact.primary_key_type }} id, bool moveUp, ListRequest? request = null);
+    Task<ServiceResult<bool>> MoveToIndex({{ artifact.primary_key_type }} id, int newIndex, ListRequest? request = null);
+    Task<ServiceResult<bool>> Reorder(ListRequest? request = null);
+    Task<ServiceResult<int>> GetNextOrder(ListRequest? request = null);
+    Task<ServiceResult<bool>> DeleteAndReorder({{ artifact.primary_key_type }} id, ListRequest? request = null, bool hardDelete = false);
+{{ end }}
+    Task<ServiceResult<ListResult<{{ model.EntityTypeReference }}>>> List(ListRequest request, bool tracking = false, params string[] includes);
+    Task<ServiceResult<bool>> Delete({{ artifact.primary_key_type }} id, {{ artifact.user_id_type }}? userId = null, bool hardDelete = false);
+}
+
+[GeneratedCode("{{ tool.name }}", "{{ tool.version }}")]
+public partial class {{ model.Name }}Service : I{{ model.Name }}Service
+{
+    private readonly ILogger<{{ model.Name }}Service> _logger;
+    private readonly I{{ model.Name }}Repository _repo;
+
+    public {{ model.Name }}Service(ILogger<{{ model.Name }}Service> logger, I{{ model.Name }}Repository repo)
+    {
+        _logger = logger;
+        _repo = repo;
+    }
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> Create(Create{{ model.Name }}Request request, {{ artifact.user_id_type }}? userId = null)
+    {
+        if (request is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("Invalid request.");
+        var entity = new {{ model.EntityTypeReference }}();
+{{ for prop in model.Properties }}
+{{ if prop.IncludeInCreateRequest }}
+{{ if prop.Name == 'RowVersion' }}
+        if (request.{{ prop.Name }} is not null) entity.{{ prop.Name }} = request.{{ prop.Name }};
+{{ else }}
+        entity.{{ prop.Name }} = request.{{ prop.Name }} ?? {{ prop.DefaultValue }};
+{{ end }}
+{{ end }}
+{{ end }}
+        var rows = await _repo.Save(entity, userId);
+        return rows > 0 ? ServiceResult<{{ model.EntityTypeReference }}>.Success(entity) : ServiceResult<{{ model.EntityTypeReference }}>.Fail("Create failed");
+    }
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> Update(Update{{ model.Name }}Request request, {{ artifact.user_id_type }}? userId = null)
+    {
+        if (request?.Id is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("Invalid request: Id is required.");
+        var entity = await _repo.GetById(({{ artifact.primary_key_type }})request.Id.Value, tracking: true);
+        if (entity is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.");
+{{ for prop in model.Properties }}
+{{ if prop.IncludeInUpdateRequest }}
+{{ if prop.Name == 'RowVersion' }}
+        if (request.{{ prop.Name }} is not null) entity.{{ prop.Name }} = request.{{ prop.Name }};
+{{ else }}
+        entity.{{ prop.Name }} = request.{{ prop.Name }} ?? entity.{{ prop.Name }};
+{{ end }}
+{{ end }}
+{{ end }}
+        var rows = await _repo.Save(entity, userId);
+        return rows > 0 ? ServiceResult<{{ model.EntityTypeReference }}>.Success(entity) : ServiceResult<{{ model.EntityTypeReference }}>.Fail("Update failed");
+    }
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> Upsert(Upsert{{ model.Name }}Request request, {{ artifact.user_id_type }}? userId = null)
+    {
+        if (request is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("Invalid request.");
+        var isCreate = !(request.Id.HasValue && request.Id.Value > 0);
+        var entity = isCreate ? new {{ model.EntityTypeReference }}() : await _repo.GetById(({{ artifact.primary_key_type }})request.Id!.Value, tracking: true);
+        if (entity is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.");
+{{ for prop in model.Properties }}
+{{ if prop.IncludeInUpdateRequest }}
+{{ if prop.Name == 'RowVersion' }}
+        if (request.{{ prop.Name }} is not null) entity.{{ prop.Name }} = request.{{ prop.Name }};
+{{ else }}
+        entity.{{ prop.Name }} = request.{{ prop.Name }} ?? entity.{{ prop.Name }};
+{{ end }}
+{{ end }}
+{{ end }}
+        var rows = await _repo.Save(entity, userId);
+        return rows > 0 ? ServiceResult<{{ model.EntityTypeReference }}>.Success(entity) : ServiceResult<{{ model.EntityTypeReference }}>.Fail("Upsert failed");
+    }
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> GetById({{ artifact.primary_key_type }} id, bool tracking = false, params string[] includes)
+    {
+        var entity = await _repo.GetById(id, tracking, includes);
+        return entity is null ? ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.") : ServiceResult<{{ model.EntityTypeReference }}>.Success(entity);
+    }
+
+{{ if model.HasGuid }}
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> GetByGuid(Guid guid, bool tracking = false, params string[] includes)
+    {
+        var entity = await _repo.GetByGuid(guid, tracking, includes);
+        return entity is null ? ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.") : ServiceResult<{{ model.EntityTypeReference }}>.Success(entity);
+    }
+{{ end }}
+{{ if model.NameLookupProperty }}
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> GetByName({{ model.NameLookupProperty.NonNullableDisplayType }} name, bool tracking = false, params string[] includes)
+    {
+        var entity = await _repo.GetByName(name, tracking, includes);
+        return entity is null ? ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.") : ServiceResult<{{ model.EntityTypeReference }}>.Success(entity);
+    }
+{{ end }}
+{{ if model.EmailLookupProperty }}
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> GetByEmail({{ model.EmailLookupProperty.NonNullableDisplayType }} email, bool tracking = false, params string[] includes)
+    {
+        var entity = await _repo.GetByEmail(email, tracking, includes);
+        return entity is null ? ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.") : ServiceResult<{{ model.EntityTypeReference }}>.Success(entity);
+    }
+{{ end }}
+{{ if model.HandleLookupProperty }}
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> GetByHandle({{ model.HandleLookupProperty.NonNullableDisplayType }} handle, bool tracking = false, params string[] includes)
+    {
+        var entity = await _repo.GetByHandle(handle, tracking, includes);
+        return entity is null ? ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.") : ServiceResult<{{ model.EntityTypeReference }}>.Success(entity);
+    }
+{{ end }}
+{{ if model.SlugLookupProperty }}
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> GetBySlug({{ model.SlugLookupProperty.NonNullableDisplayType }} slug, bool tracking = false, params string[] includes)
+    {
+        var entity = await _repo.GetBySlug(slug, tracking, includes);
+        return entity is null ? ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.") : ServiceResult<{{ model.EntityTypeReference }}>.Success(entity);
+    }
+{{ end }}
+{{ for prop in model.KeyLookupProperties }}
+
+    public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> GetBy{{ prop.Name }}({{ prop.NonNullableDisplayType }} value, bool tracking = false, params string[] includes)
+    {
+        var entity = await _repo.GetBy{{ prop.Name }}(value, tracking, includes);
+        return entity is null ? ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.") : ServiceResult<{{ model.EntityTypeReference }}>.Success(entity);
+    }
+{{ end }}
+{{ for prop in model.SettableStateProperties }}
+
+    public virtual async Task<ServiceResult<bool>> Set{{ prop.Name }}ById({{ artifact.primary_key_type }} id, {{ prop.NonNullableDisplayType }} value, {{ artifact.user_id_type }}? userId = null)
+    {
+        var updated = await _repo.Set{{ prop.Name }}ById(id, value, userId);
+        return updated ? ServiceResult<bool>.Success(true) : ServiceResult<bool>.Fail("{{ model.Name }} not found.");
+    }
+{{ if model.HasGuid }}
+
+    public virtual async Task<ServiceResult<bool>> Set{{ prop.Name }}ByGuid(Guid guid, {{ prop.NonNullableDisplayType }} value, {{ artifact.user_id_type }}? userId = null)
+    {
+        var updated = await _repo.Set{{ prop.Name }}ByGuid(guid, value, userId);
+        return updated ? ServiceResult<bool>.Success(true) : ServiceResult<bool>.Fail("{{ model.Name }} not found.");
+    }
+{{ end }}
+{{ end }}
+{{ if model.HasOrder }}
+
+    public virtual async Task<ServiceResult<bool>> ChangeOrder({{ artifact.primary_key_type }} id, bool moveUp, ListRequest? request = null)
+    {
+        var updated = await _repo.ChangeOrder(id, moveUp, request);
+        return updated ? ServiceResult<bool>.Success(true) : ServiceResult<bool>.Fail("{{ model.Name }} not found.");
+    }
+
+    public virtual async Task<ServiceResult<bool>> MoveToIndex({{ artifact.primary_key_type }} id, int newIndex, ListRequest? request = null)
+    {
+        var updated = await _repo.MoveToIndex(id, newIndex, request);
+        return updated ? ServiceResult<bool>.Success(true) : ServiceResult<bool>.Fail("{{ model.Name }} not found.");
+    }
+
+    public virtual async Task<ServiceResult<bool>> Reorder(ListRequest? request = null)
+    {
+        var reordered = await _repo.Reorder(request);
+        return reordered ? ServiceResult<bool>.Success(true) : ServiceResult<bool>.Fail("No {{ model.PluralName }} found to reorder.");
+    }
+
+    public virtual async Task<ServiceResult<int>> GetNextOrder(ListRequest? request = null)
+    {
+        var nextOrder = await _repo.GetNextOrder(request);
+        return ServiceResult<int>.Success(nextOrder);
+    }
+
+    public virtual async Task<ServiceResult<bool>> DeleteAndReorder({{ artifact.primary_key_type }} id, ListRequest? request = null, bool hardDelete = false)
+    {
+        var deleted = await _repo.DeleteAndReorder(id, request, hardDelete);
+        return deleted ? ServiceResult<bool>.Success(true) : ServiceResult<bool>.Fail("Delete and reorder failed.");
+    }
+{{ end }}
+
+    public virtual async Task<ServiceResult<ListResult<{{ model.EntityTypeReference }}>>> List(ListRequest request, bool tracking = false, params string[] includes)
+    {
+        try
+        {
+            var items = await _repo.List(request, tracking, includes);
+            var count = request.GetTotalCount ? await _repo.Count(request) : items.Count;
+            return ServiceResult<ListResult<{{ model.EntityTypeReference }}>>.Success(new ListResult<{{ model.EntityTypeReference }}>(count, items));
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Error listing {{ model.Name }}");
+            return ServiceResult<ListResult<{{ model.EntityTypeReference }}>>.Fail("Error loading list");
+        }
+    }
+
+    public virtual async Task<ServiceResult<bool>> Delete({{ artifact.primary_key_type }} id, {{ artifact.user_id_type }}? userId = null, bool hardDelete = false)
+    {
+        var deleted = await _repo.Delete(id, hardDelete);
+        return deleted ? ServiceResult<bool>.Success(true) : ServiceResult<bool>.Fail("Delete failed");
+    }
+}

@@ -1,0 +1,91 @@
+// ----------------------------------------------------------------------------------------------
+// This file is generated as a scaffold reference only.
+// Copy the operations you want to expose into ../{{ artifact.service_export_name }}.ts.
+// Do not uncomment this file directly.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+{{ has_bool_state = false }}
+{{ for prop in model.SettableStateProperties }}
+{{ if prop.NonNullableDisplayType == "bool" }}
+{{ has_bool_state = true }}
+{{ end }}
+{{ end }}
+
+// Suggested imports for the app-owned service file:
+// import { ApiResponse, IdRequest, ListRequest, ListResult{{ if model.HasGuid }}, GuidRequest{{ end }}{{ if has_bool_state }}, SetBooleanRequest{{ end }}{{ if model.HasOrder }}, ChangeOrderRequest, MoveOrderToIndexRequest, DeleteAndReorderRequest{{ end }}{{ if model.HandleLookupProperty != null }}, ValueExistsRequest{{ end }} } from "{{ options.TypeScriptCoreTypesImportPath }}";
+// import { Create{{ model.Name }}Request, Upsert{{ model.Name }}Request, Update{{ model.Name }}Request, {{ model.Name }}Response } from "{{ options.TypeScriptGeneratedModelsImportPath }}";
+// import HttpRequest from "{{ options.TypeScriptHttpRequestImportPath }}";
+
+/*
+export const {{ artifact.service_export_name }} = {
+    create: async (request: Create{{ model.Name }}Request) => {
+        return await HttpRequest<Create{{ model.Name }}Request, ApiResponse<{{ model.Name }}Response>>({ url: "/{{ artifact.route_segment }}/create", method: "post" }, request);
+    },
+
+    upsert: async (request: Upsert{{ model.Name }}Request) => {
+        return await HttpRequest<Upsert{{ model.Name }}Request, ApiResponse<{{ model.Name }}Response>>({ url: "/{{ artifact.route_segment }}/upsert", method: "post" }, request);
+    },
+
+    get: async (request: IdRequest) => {
+        return await HttpRequest<IdRequest, ApiResponse<{{ model.Name }}Response>>({ url: "/{{ artifact.route_segment }}/get", method: "get" }, request);
+    },
+{{ if model.HasGuid }}
+
+    getByGuid: async (request: GuidRequest) => {
+        return await HttpRequest<GuidRequest, ApiResponse<{{ model.Name }}Response>>({ url: "/{{ artifact.route_segment }}/getByGuid", method: "get" }, request);
+    },
+{{ end }}
+
+    list: async (request: ListRequest) => {
+        return await HttpRequest<ListRequest, ApiResponse<ListResult<{{ model.Name }}Response>>>({ url: "/{{ artifact.route_segment }}/list", method: "post" }, request);
+    },
+
+    update: async (request: Update{{ model.Name }}Request) => {
+        return await HttpRequest<Update{{ model.Name }}Request, ApiResponse<{{ model.Name }}Response>>({ url: "/{{ artifact.route_segment }}/update", method: "post" }, request);
+    },
+
+    delete: async (request: IdRequest) => {
+        return await HttpRequest<IdRequest, ApiResponse<boolean>>({ url: "/{{ artifact.route_segment }}/delete", method: "delete" }, request);
+    },
+{{ if model.HasGuid }}
+
+    deleteByGuid: async (request: GuidRequest) => {
+        return await HttpRequest<GuidRequest, ApiResponse<boolean>>({ url: "/{{ artifact.route_segment }}/deleteByGuid", method: "delete" }, request);
+    },
+{{ end }}
+{{ if model.HandleLookupProperty != null }}
+
+    handleExists: async (request: ValueExistsRequest) => {
+        return await HttpRequest<ValueExistsRequest, ApiResponse<boolean>>({ url: "/{{ artifact.route_segment }}/handleExists", method: "get" }, request);
+    },
+{{ end }}
+{{ for prop in model.SettableStateProperties }}
+{{ if prop.NonNullableDisplayType == "bool" }}
+
+    set{{ prop.Name }}: async (request: SetBooleanRequest) => {
+        return await HttpRequest<SetBooleanRequest, ApiResponse<boolean>>({ url: "/{{ artifact.route_segment }}/set{{ prop.Name }}", method: "post" }, request);
+    },
+{{ if model.HasGuid }}
+
+    set{{ prop.Name }}ByGuid: async (request: SetBooleanRequest) => {
+        return await HttpRequest<SetBooleanRequest, ApiResponse<boolean>>({ url: "/{{ artifact.route_segment }}/set{{ prop.Name }}ByGuid", method: "post" }, request);
+    },
+{{ end }}
+{{ end }}
+{{ end }}
+{{ if model.HasOrder }}
+
+    changeOrder: async (request: ChangeOrderRequest) => {
+        return await HttpRequest<ChangeOrderRequest, ApiResponse<boolean>>({ url: "/{{ artifact.route_segment }}/changeOrder", method: "post" }, request);
+    },
+
+    moveToIndex: async (request: MoveOrderToIndexRequest) => {
+        return await HttpRequest<MoveOrderToIndexRequest, ApiResponse<boolean>>({ url: "/{{ artifact.route_segment }}/moveToIndex", method: "post" }, request);
+    },
+
+    deleteAndReorder: async (request: DeleteAndReorderRequest) => {
+        return await HttpRequest<DeleteAndReorderRequest, ApiResponse<boolean>>({ url: "/{{ artifact.route_segment }}/deleteAndReorder", method: "post" }, request);
+    },
+{{ end }}
+};
+*/

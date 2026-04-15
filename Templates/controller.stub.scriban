@@ -1,0 +1,48 @@
+// !!!CODE_GEN_REPLACE!!! Remove this line if edited, to prevent code generation overwriting/replacing this file
+#nullable enable
+
+using App.Dto.Common;
+using {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests;
+using {{ options.DtoNamespace }}.{{ model.PluralName }}.Responses;
+using App.Security.MultiTenancy;
+using App.Services;
+using Asp.Versioning;
+using Mapster;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+
+namespace {{ options.ControllerNamespace }};
+
+/// <summary>
+/// Defines the deliberate public API surface for {{ model.PluralName | string.downcase }}.
+/// </summary>
+[ApiController]
+[ApiExplorerSettings(IgnoreApi = false)]
+[ApiVersion("1.0")]
+[Authorize]
+[Route("api/v{version:apiVersion}/[controller]")]
+public partial class {{ model.PluralName }}Controller : BaseController<{{ model.PluralName }}Controller>
+{
+    private readonly IMemoryCache _cache;
+    private readonly I{{ model.Name }}Service _{{ model.Name }}Service;
+    private readonly int _tenantId;
+
+    /// <summary>
+    /// Initializes a new {{ model.PluralName }} controller.
+    /// </summary>
+    public {{ model.PluralName }}Controller(
+        ILogger<{{ model.PluralName }}Controller> logger,
+        IMemoryCache cache,
+        ITenantGetter tenantGetter,
+        I{{ model.Name }}Service {{ model.Name }}Service) : base(logger)
+    {
+        _cache = cache;
+        _{{ model.Name }}Service = {{ model.Name }}Service;
+        _tenantId = tenantGetter?.Tenant?.Id ?? 0;
+    }
+
+    // Intentionally empty.
+    // Copy selected action scaffolds from Generated/{{ model.PluralName }}Controller.scaffold.g.cs
+    // and keep only the endpoints this app deliberately exposes.
+}

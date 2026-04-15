@@ -1,0 +1,23 @@
+// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+
+{{ if artifact.enums_import_path != "" }}
+import * as Enums from "{{ artifact.enums_import_path }}";
+
+{{ end }}
+{{ for model in api_models }}
+// ----------------------------------------
+// Model: {{ model.Name }}
+// ----------------------------------------
+
+export type {{ model.Name }} = {
+{{ for property in model.Properties }}
+    {{ property.CamelCaseName }}{{ if property.IsOptional }}?{{ end }}: {{ property.TypeScriptType }};
+{{ end }}
+};
+
+
+{{ end }}

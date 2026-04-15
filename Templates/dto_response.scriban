@@ -1,0 +1,19 @@
+// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+#nullable enable
+using System.CodeDom.Compiler;
+
+namespace App.Dto.{{ model.PluralName }}.Responses;
+
+[GeneratedCode("{{ tool.name }}", "{{ tool.version }}")]
+public class {{ model.Name }}Response
+{
+{{ for prop in model.Properties }}
+{{ if prop.IncludeInResponse }}
+    public {{ prop.ResponseTypeName }} {{ prop.Name }} { get; set; }{{ if prop.Name == 'RowVersion' }} = System.Array.Empty<byte>();{{ else }}{{ prop.ResponseInitializer }}{{ end }}
+{{ end }}
+{{ end }}
+}

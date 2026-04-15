@@ -1,0 +1,141 @@
+// ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// Generated on {{ tool.generated_at }}
+// ----------------------------------------------------------------------------------------------
+#nullable enable
+
+using System.CodeDom.Compiler;
+using {{ options.ModelNamespace }};
+using {{ options.ModelNamespace }}.JsonModels;
+using {{ options.ModelNamespace }}.Helpers;
+using System.Text.Json;
+using {{ options.CurrentUserNamespace }};
+using {{ options.TenantNamespace }};
+{{ for model in models }}
+{{ if model.RequiresEntityTypeAlias }}
+using {{ model.EntityTypeAlias }} = {{ model.QualifiedName }};
+{{ end }}
+{{ end }}
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+{{~ has_encrypted_json = false ~}}
+{{ for model in models }}
+{{ for property in model.Properties }}
+{{ if property.IsStoredAsJsonEncrypted }}
+{{ has_encrypted_json = true }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ if has_encrypted_json }}
+using Microsoft.AspNetCore.DataProtection;
+{{ end }}
+
+namespace {{ options.DataNamespace }};
+
+[GeneratedCode("{{ tool.name }}", "{{ tool.version }}")]
+public partial class ApplicationDbContext : DbContext
+{
+    private readonly ICurrentUserService _currentUserService;
+    private readonly ILogger<ApplicationDbContext> _logger;
+{{ if has_encrypted_json }}    private readonly IDataProtectionProvider? _dataProtectionProvider;{{ end }}
+
+    public int CurrentTenantId { get; set; }
+
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        ILogger<ApplicationDbContext> logger,
+        ICurrentUserService currentUserService,
+        ITenantGetter? tenantGetter = null{{ if has_encrypted_json }},
+        IDataProtectionProvider? dataProtectionProvider = null{{ end }}) : base(options)
+    {
+        _logger = logger;
+        _currentUserService = currentUserService;
+{{ if has_encrypted_json }}        _dataProtectionProvider = dataProtectionProvider;{{ end }}
+        CurrentTenantId = tenantGetter?.Tenant?.Id ?? 0;
+    }
+
+    private long? CurrentUserId => _currentUserService.UserId;
+
+{{ for model in models }}
+{{ if !model.IsJsonModel && !model.IsBaseModel }}
+    public DbSet<{{ model.EntityTypeReference }}> {{ model.PluralName }} { get; set; } = null!;
+{{ end }}
+{{ end }}
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetForeignKeys()))
+        {
+            relationship.DeleteBehavior = DeleteBehavior.Restrict;
+        }
+
+        foreach (var property in modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties()).Where(x => x.ClrType == typeof(decimal) || x.ClrType == typeof(decimal?)))
+        {
+            property.SetPrecision(18);
+            property.SetScale(2);
+        }
+
+{{ for model in models }}
+{{ if !model.IsJsonModel && !model.IsBaseModel }}
+{{ for property in model.Properties }}
+{{ if property.IsStoredAsJson }}
+        modelBuilder.Entity<{{ model.EntityTypeReference }}>()
+            .Property(x => x.{{ property.Name }})
+{{ if property.IsStoredAsJsonEncrypted }}
+            .HasConversion(new EncryptedJsonConverter<{{ property.DisplayTypeName | string.replace "?" "" }}>(
+                GetJsonProtector(nameof({{ model.EntityTypeReference }}), nameof({{ property.Name }}), "{{ property.JsonEncryptedModelName }}"),
+                (JsonSerializerOptions?)null))
+{{ else }}
+            .HasConversion(
+                value => value == null
+                    ? null
+                    : JsonSerializer.Serialize(value, (JsonSerializerOptions?)null),
+                value => string.IsNullOrWhiteSpace(value)
+                    ? {{ if property.DefaultValue == "null" && property.IsCollection }}new {{ property.DisplayTypeName }}(){{ else }}{{ property.DefaultValue }}{{ end }}
+                    : JsonSerializer.Deserialize<{{ property.DisplayTypeName }}>(value, (JsonSerializerOptions?)null){{ if !property.IsNullable }} ?? {{ if property.DefaultValue == "null" && property.IsCollection }}new {{ property.DisplayTypeName }}(){{ else }}{{ property.DefaultValue }}{{ end }}{{ end }})
+{{ end }}
+            .Metadata.SetValueComparer(JsonValueComparer.Create<{{ property.DisplayTypeName | string.replace "?" "" }}>());
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ for model in models }}
+{{ if !model.IsJsonModel && !model.IsBaseModel && model.HasTenantId }}
+        modelBuilder.Entity<{{ model.EntityTypeReference }}>().HasIndex("TenantId");
+{{ end }}
+{{ end }}
+
+
+
+{{ for model in models }}
+{{ if !model.IsJsonModel && !model.IsBaseModel }}
+{{ if model.HasTenantId && !model.ExcludeTenantIdInQueryFilters && model.HasDeleted }}
+        modelBuilder.Entity<{{ model.EntityTypeReference }}>().HasQueryFilter(x => x.TenantId == CurrentTenantId && !x.Deleted);
+{{ else if model.HasTenantId && !model.ExcludeTenantIdInQueryFilters }}
+        modelBuilder.Entity<{{ model.EntityTypeReference }}>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+{{ else if model.HasDeleted }}
+        modelBuilder.Entity<{{ model.EntityTypeReference }}>().HasQueryFilter(x => !x.Deleted);
+{{ end }}
+{{ end }}
+{{ end }}
+
+        ConfigureCustomModel(modelBuilder);
+    }
+
+{{ if has_encrypted_json }}
+    private IDataProtector GetJsonProtector(string modelName, string propertyName, string jsonModelName)
+    {
+        if (_dataProtectionProvider is null)
+        {
+            throw new InvalidOperationException($"DataProtection provider is required for encrypted JSON property '{modelName}.{propertyName}'.");
+        }
+
+        var effectiveModelName = string.IsNullOrWhiteSpace(jsonModelName) ? propertyName : jsonModelName;
+        return _dataProtectionProvider.CreateProtector($"{GetType().FullName}.Json.{modelName}.{propertyName}.{effectiveModelName}");
+    }
+{{ end }}
+    partial void ConfigureCustomModel(ModelBuilder modelBuilder);
+}
