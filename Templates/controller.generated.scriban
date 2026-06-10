@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------
 // This file was generated using {{ tool.name }}
 // Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
 // Generated on {{ tool.generated_at }}
@@ -14,7 +14,6 @@ using Asp.Versioning;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Create{{ model.Name }}DtoRequest = {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests.Create{{ model.Name }}Request;
 using Update{{ model.Name }}DtoRequest = {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests.Update{{ model.Name }}Request;
 using Upsert{{ model.Name }}DtoRequest = {{ options.DtoNamespace }}.{{ model.PluralName }}.Requests.Upsert{{ model.Name }}Request;
@@ -30,10 +29,6 @@ namespace {{ options.ControllerNamespace }};
 public partial class Generated{{ model.PluralName }}Controller : BaseController<Generated{{ model.PluralName }}Controller>
 {
     /// <summary>
-    /// Memory cache
-    /// </summary>
-    public readonly IMemoryCache _cache;
-    /// <summary>
     /// {{ model.Name }} Service
     /// </summary>
     public readonly Generated{{ model.Name }}AppService _{{ model.Name }}Service;
@@ -46,11 +41,9 @@ public partial class Generated{{ model.PluralName }}Controller : BaseController<
     /// </summary>
     public Generated{{ model.PluralName }}Controller(
         ILogger<Generated{{ model.PluralName }}Controller> logger,
-        IMemoryCache cache,
         ITenantGetter tenantGetter,
         Generated{{ model.Name }}AppService {{ model.Name }}Service) : base(logger)
     {
-        _cache = cache;
         _{{ model.Name }}Service = {{ model.Name }}Service;
         _tenantId = tenantGetter?.Tenant?.Id ?? 0;
     }
@@ -310,6 +303,7 @@ public partial class Generated{{ model.PluralName }}Controller : BaseController<
     }
 {{ end }}
 }
+
 
 
 

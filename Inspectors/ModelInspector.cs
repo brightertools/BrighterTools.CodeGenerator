@@ -495,7 +495,8 @@ public sealed class ModelInspector(string projectPath, string modelNamespacePref
             .OfType<IFieldSymbol>()
             .FirstOrDefault(x => x.HasConstantValue);
 
-        return member?.ConstantValue?.ToString() ?? "0";
+        var enumTypeName = NormalizeDisplayType(enumType.ToString());
+        return member is null ? $"default({enumTypeName})" : $"{enumTypeName}.{member.Name}";
     }
 
     private static bool IsForeignKeyIdType(ITypeSymbol type) =>

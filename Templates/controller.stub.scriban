@@ -10,7 +10,6 @@ using Asp.Versioning;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace {{ options.ControllerNamespace }};
 
@@ -24,7 +23,6 @@ namespace {{ options.ControllerNamespace }};
 [Route("api/v{version:apiVersion}/[controller]")]
 public partial class {{ model.PluralName }}Controller : BaseController<{{ model.PluralName }}Controller>
 {
-    private readonly IMemoryCache _cache;
     private readonly I{{ model.Name }}Service _{{ model.Name }}Service;
     private readonly int _tenantId;
 
@@ -33,11 +31,9 @@ public partial class {{ model.PluralName }}Controller : BaseController<{{ model.
     /// </summary>
     public {{ model.PluralName }}Controller(
         ILogger<{{ model.PluralName }}Controller> logger,
-        IMemoryCache cache,
         ITenantGetter tenantGetter,
         I{{ model.Name }}Service {{ model.Name }}Service) : base(logger)
     {
-        _cache = cache;
         _{{ model.Name }}Service = {{ model.Name }}Service;
         _tenantId = tenantGetter?.Tenant?.Id ?? 0;
     }
@@ -46,3 +42,4 @@ public partial class {{ model.PluralName }}Controller : BaseController<{{ model.
     // Copy selected action scaffolds from Generated/{{ model.PluralName }}Controller.scaffold.g.cs
     // and keep only the endpoints this app deliberately exposes.
 }
+
