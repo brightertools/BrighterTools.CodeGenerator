@@ -6,6 +6,11 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>brightertools-codegenerator</ToolCommandName>
+    <PackageId>BrighterTools.CodeGenerator</PackageId>
+    <Description>Build-time code generation tool for BrighterTools application repositories.</Description>
+    <PackageTags>codegeneration;dotnet-tool;templates;typescript;efcore</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

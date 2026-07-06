@@ -182,25 +182,46 @@ This is the recommended setup while iterating on the generator:
 
 This keeps the app repo stable while allowing rapid changes in the shared generator repo.
 
-## Future packaging as a dotnet tool
+## Dotnet tool packaging
 
-The clean long-term distribution is a dotnet tool package.
-
-When moving to that model in a consuming app:
-
-1. package this generator as a dotnet tool
-2. install it in the app repo's tool manifest or globally
-3. clear `projectPath` in `codegen.json`
-4. clear `templatesDirectory` in `codegen.json`
-5. set `toolCommand` to the installed tool command name
-
-Then the same app script can run:
+`BrighterTools.CodeGenerator` is packaged as a dotnet tool with command name:
 
 ```text
-dotnet tool run <toolCommand> -- --config CodeGeneration\codegen.json
+brightertools-codegenerator
+```
+
+Recommended distribution:
+
+1. publish the tool package to a NuGet feed
+2. install it in each consuming app repo with a local tool manifest
+3. clear `projectPath` in `codegen.json`
+4. clear `templatesDirectory` in `codegen.json`
+5. set `toolCommand` to `brightertools-codegenerator`
+
+Then the app can run:
+
+```text
+dotnet tool restore
+dotnet tool run brightertools-codegenerator -- --config CodeGeneration\codegen.json
 ```
 
 This avoids hard-wiring the app repo to a local checkout of the generator source.
+
+## Tool deployment options
+
+Recommended order:
+
+1. publish to a private GitHub Packages or Azure Artifacts feed while iterating
+2. publish to `nuget.org` once the package shape and command are stable
+
+If published to `nuget.org`, a consuming app can install it with:
+
+```text
+dotnet new tool-manifest
+dotnet tool install BrighterTools.CodeGenerator
+```
+
+That installation adds the tool to the repo's `.config\dotnet-tools.json` and keeps it out of the app's runtime deployment output.
 
 ## Important operational rule
 
