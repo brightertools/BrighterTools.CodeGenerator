@@ -444,8 +444,13 @@ public sealed class ModelInspector(string projectPath, string modelNamespacePref
     private static string GetResponseInitializer(string rawType, bool isNullable) =>
         NormalizeDisplayType(rawType) == "string" && !isNullable ? " = \"\";" : string.Empty;
 
-    private static string NormalizeDisplayType(string rawType)
+    private static string NormalizeDisplayType(string? rawType)
     {
+        if (string.IsNullOrWhiteSpace(rawType))
+        {
+            return string.Empty;
+        }
+
         return rawType switch
         {
             "System.String" => "string",

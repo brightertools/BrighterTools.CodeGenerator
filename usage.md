@@ -52,6 +52,21 @@ This keeps the app in control of:
 - which generator project/tool is used
 - how generation is run in local dev and CI
 
+## Important reference rule
+
+The consuming app should not add `BrighterTools.CodeGenerator` as a normal `ProjectReference` or `PackageReference`.
+
+Instead:
+
+- the app's `codegen.json` points to the generator project via `projectPath` while developing locally, or
+- the app's `codegen.json` points to an installed command via `toolCommand` once the generator is packaged as a dotnet tool
+
+This means:
+
+- `appProjectPath` is the app project being inspected
+- `projectPath` is only the generator executable project used to run generation
+- the generator is a build-time/dev-time tool and is not copied into the app's runtime output or deployed with the app unless you explicitly reference it as an app dependency
+
 ## Example app config
 
 Example `codegen.json` for direct project execution:
