@@ -16,6 +16,9 @@ on:
 jobs:
   pack-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout
@@ -49,6 +52,6 @@ jobs:
           path: ./artifacts/nuget/*
           if-no-files-found: error
 
-      - name: Publish to NuGet
+      - name: Publish to NuGet with Trusted Publishing
         if: ${{ inputs.publish_to_nuget }}
-        run: dotnet nuget push ./artifacts/nuget/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/nuget/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate

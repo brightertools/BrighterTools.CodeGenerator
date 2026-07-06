@@ -44,9 +44,9 @@ echo   %OUTPUT_DIR%
 echo.
 echo Publish command:
 if "%VERSION%"=="" (
-    echo   dotnet nuget push "%OUTPUT_DIR%\BrighterTools.CodeGenerator.*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ^<API_KEY^>
+    echo   Use the GitHub Actions publish-tool workflow with Trusted Publishing to publish "%OUTPUT_DIR%\BrighterTools.CodeGenerator.*.nupkg" to nuget.org.
 ) else (
-    echo   dotnet nuget push "%OUTPUT_DIR%\BrighterTools.CodeGenerator.%VERSION%.nupkg" --source https://api.nuget.org/v3/index.json --api-key ^<API_KEY^>
+    echo   Use the GitHub Actions publish-tool workflow with Trusted Publishing to publish "%OUTPUT_DIR%\BrighterTools.CodeGenerator.%VERSION%.nupkg" to nuget.org.
 )
 
 endlocal

@@ -303,7 +303,7 @@ The script:
 1. restores the project
 2. builds in `Release`
 3. packs the dotnet tool package into `artifacts\nuget`
-4. prints the `dotnet nuget push` command to publish it
+4. reminds you to publish the resulting package via the GitHub Actions Trusted Publishing workflow
 
 ## Packaging in Visual Studio
 
@@ -319,21 +319,58 @@ Expected output:
 - `artifacts\nuget\BrighterTools.CodeGenerator.<version>.nupkg`
 - `artifacts\nuget\BrighterTools.CodeGenerator.<version>.snupkg`
 
-## Publishing to NuGet
+## Publishing to NuGet with Trusted Publishing
 
-After packing, publish with:
+This repo is intended to publish to `nuget.org` through GitHub Actions Trusted Publishing rather than a stored NuGet API key.
 
-```text
-dotnet nuget push artifacts\nuget\BrighterTools.CodeGenerator.<version>.nupkg --source https://api.nuget.org/v3/index.json --api-key <API_KEY>
+### One-time setup
+
+You need to configure Trusted Publishing in `nuget.org` for this GitHub repository and publishing workflow.
+
+That setup happens outside this repo:
+
+1. in `nuget.org`, create or configure the trusted publisher entry for this GitHub repository
+2. scope it to the workflow that is allowed to publish this package
+3. make sure the `BrighterTools.CodeGenerator` package ID is owned by the same `nuget.org` account or organization that configures that trust
+
+The workflow file is already prepared for this by granting GitHub's OIDC permission:
+
+```yaml
+permissions:
+  contents: read
+  id-token: write
 ```
 
-Optional symbols package:
+No `NUGET_API_KEY` repository secret is required for this GitHub-based publishing flow.
 
-```text
-dotnet nuget push artifacts\nuget\BrighterTools.CodeGenerator.<version>.snupkg --source https://api.nuget.org/v3/index.json --api-key <API_KEY>
-```
+### Publish from GitHub Actions
 
-If using a private feed instead, replace the `--source` URL with the GitHub Packages or Azure Artifacts endpoint for that feed.
+After packing, publish by running the repository workflow:
+
+1. open the `publish-tool` workflow in GitHub Actions
+2. optionally enter a version override
+3. set `publish_to_nuget` to `true`
+4. run the workflow
+
+The workflow will:
+
+1. restore
+2. build
+3. pack
+4. upload the `.nupkg` and `.snupkg` artifacts
+5. push the package to `https://api.nuget.org/v3/index.json` using Trusted Publishing
+
+### Manual local publishing
+
+Local packaging is still supported, but Trusted Publishing is a GitHub-hosted flow. So the recommended approach for `nuget.org` is:
+
+1. pack locally if you want to verify the package contents
+2. commit/push the desired version change
+3. publish from the GitHub Actions workflow
+
+If you do need to publish outside GitHub Actions, use whatever `nuget.org` authentication method is allowed for your account at that time.
+
+If using a private feed instead, replace the publishing approach with the one required by that feed, such as GitHub Packages or Azure Artifacts.
 
 ## Important operational rule
 
