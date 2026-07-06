@@ -6,9 +6,10 @@ on:
       - main
       - master
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build-test:
+  build-test-pack:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,10 +22,20 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore
-        run: dotnet restore ./BrighterTools.CodeGenerator.slnx
+        run: dotnet restore ./BrighterTools.CodeGenerator.slnx --configfile ./NuGet.config
 
       - name: Build
         run: dotnet build ./BrighterTools.CodeGenerator.slnx --configuration Release --no-restore
 
       - name: Test
         run: dotnet test ./BrighterTools.CodeGenerator.slnx --configuration Release --no-build --verbosity normal
+
+      - name: Pack tool
+        run: dotnet pack ./BrighterTools.CodeGenerator.csproj --configuration Release --no-build --output ./artifacts/nuget --configfile ./NuGet.config
+
+      - name: Upload NuGet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: brightertools-codegenerator-nuget
+          path: ./artifacts/nuget/*
+          if-no-files-found: error

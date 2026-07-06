@@ -1,6 +1,6 @@
 # BrighterTools.CodeGenerator
 
-Code generation tooling for BrighterTools projects.
+Code generation tooling for BrighterTools projects, packaged as a dotnet tool.
 
 ## Projects
 - `BrighterTools.CodeGenerator` (console tool)
@@ -9,3 +9,19 @@ Code generation tooling for BrighterTools projects.
 ## Development
 - Build: `dotnet build BrighterTools.CodeGenerator.slnx -c Release`
 - Test: `dotnet test BrighterTools.CodeGenerator.slnx -c Release`
+- Pack locally: `PackageToolForNuGet.bat`
+
+## NuGet Sources
+- The repo-level `NuGet.config` clears inherited package sources and restores from `nuget.org`.
+- This avoids machine-specific feeds such as Telerik affecting restore and pack.
+
+## Tool Install
+- Create a manifest in the consuming repo: `dotnet new tool-manifest`
+- Install the tool: `dotnet tool install BrighterTools.CodeGenerator`
+- Run it with app-owned config: `dotnet tool run brightertools-codegenerator -- --config CodeGeneration\codegen.json`
+
+## CI Packaging
+- GitHub Actions validates restore, build, test, and pack on every push and pull request.
+- The packaged `.nupkg` and `.snupkg` files are uploaded as workflow artifacts.
+
+Full setup and consuming-app guidance lives in `usage.md`.

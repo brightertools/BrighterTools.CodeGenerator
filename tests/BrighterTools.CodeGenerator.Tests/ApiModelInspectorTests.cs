@@ -7,8 +7,14 @@ using Xunit;
 
 namespace BrighterTools.CodeGenerator.Tests;
 
+/// <summary>
+/// Verifies API model inspection rules used for TypeScript DTO generation.
+/// </summary>
 public class ApiModelInspectorTests
 {
+    /// <summary>
+    /// Excludes properties marked with <c>JsonIgnore</c>.
+    /// </summary>
     [Fact]
     public void ApiModelInspector_IsSupportedProperty_Excludes_JsonIgnore()
     {
@@ -29,6 +35,9 @@ public class SampleDto
         Assert.False(supported);
     }
 
+    /// <summary>
+    /// Excludes properties marked with <c>ExcludeFromApi</c> unless explicitly included.
+    /// </summary>
     [Fact]
     public void ApiModelInspector_IsSupportedProperty_Excludes_ExcludeFromApi_Without_IncludeInApi()
     {
@@ -52,6 +61,9 @@ public class SampleDto
         Assert.False(supported);
     }
 
+    /// <summary>
+    /// Allows API inclusion when both exclusion and explicit inclusion are present.
+    /// </summary>
     [Fact]
     public void ApiModelInspector_IsSupportedProperty_Allows_ExcludeFromApi_When_IncludeInApi_Present()
     {
@@ -77,6 +89,9 @@ public class SampleDto
         Assert.True(supported);
     }
 
+    /// <summary>
+    /// Excludes not-mapped properties unless they are explicitly included.
+    /// </summary>
     [Fact]
     public void ApiModelInspector_IsSupportedProperty_Excludes_NotMapped_Without_IncludeInApi()
     {
@@ -97,6 +112,9 @@ public class SampleDto
         Assert.False(supported);
     }
 
+    /// <summary>
+    /// Allows not-mapped properties to flow into the API model when explicitly included.
+    /// </summary>
     [Fact]
     public void ApiModelInspector_IsSupportedProperty_Allows_NotMapped_When_IncludeInApi_Present()
     {

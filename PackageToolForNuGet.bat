@@ -3,6 +3,7 @@ setlocal
 
 set "SCRIPT_DIR=%~dp0"
 set "PROJECT=%SCRIPT_DIR%BrighterTools.CodeGenerator.csproj"
+set "NUGET_CONFIG=%SCRIPT_DIR%NuGet.config"
 set "OUTPUT_DIR=%SCRIPT_DIR%artifacts\nuget"
 set "CONFIGURATION=Release"
 set "VERSION=%~1"
@@ -12,12 +13,17 @@ if not exist "%PROJECT%" (
     exit /b 1
 )
 
+if not exist "%NUGET_CONFIG%" (
+    echo NuGet.config not found: %NUGET_CONFIG%
+    exit /b 1
+)
+
 if not exist "%OUTPUT_DIR%" (
     mkdir "%OUTPUT_DIR%"
 )
 
 echo Restoring BrighterTools.CodeGenerator...
-dotnet restore "%PROJECT%"
+dotnet restore "%PROJECT%" --configfile "%NUGET_CONFIG%"
 if errorlevel 1 exit /b %errorlevel%
 
 echo Building BrighterTools.CodeGenerator...
@@ -26,9 +32,9 @@ if errorlevel 1 exit /b %errorlevel%
 
 echo Packing BrighterTools.CodeGenerator tool package...
 if "%VERSION%"=="" (
-    dotnet pack "%PROJECT%" -c %CONFIGURATION% --no-build --output "%OUTPUT_DIR%"
+    dotnet pack "%PROJECT%" -c %CONFIGURATION% --no-build --output "%OUTPUT_DIR%" --configfile "%NUGET_CONFIG%"
 ) else (
-    dotnet pack "%PROJECT%" -c %CONFIGURATION% --no-build --output "%OUTPUT_DIR%" /p:Version=%VERSION%
+    dotnet pack "%PROJECT%" -c %CONFIGURATION% --no-build --output "%OUTPUT_DIR%" --configfile "%NUGET_CONFIG%" /p:Version=%VERSION%
 )
 if errorlevel 1 exit /b %errorlevel%
 

@@ -9,8 +9,14 @@ using Xunit;
 
 namespace BrighterTools.CodeGenerator.Tests;
 
+/// <summary>
+/// Verifies request-model filtering and metadata extraction rules.
+/// </summary>
 public class ModelInspectorTests
 {
+    /// <summary>
+    /// Excludes JSON-ignored properties from API-facing property lists.
+    /// </summary>
     [Fact]
     public void ClassMetadata_GetApiProperties_Excludes_JsonIgnore()
     {
@@ -30,6 +36,9 @@ public class ModelInspectorTests
         Assert.DoesNotContain(props, p => p.Name == "Secret");
     }
 
+    /// <summary>
+    /// Allows not-mapped properties into create DTOs only when explicitly included.
+    /// </summary>
     [Fact]
     public void ClassMetadata_GetApiProperties_Respects_IncludeInApi_For_NotMapped_On_Create()
     {
@@ -48,6 +57,9 @@ public class ModelInspectorTests
         Assert.DoesNotContain(props, p => p.Name == "ExternalB");
     }
 
+    /// <summary>
+    /// Includes not-mapped properties in requests when the include attribute is present.
+    /// </summary>
     [Fact]
     public void ModelInspector_ShouldIncludeInRequest_Allows_NotMapped_When_IncludeInApi_Present()
     {
@@ -72,6 +84,9 @@ public class SampleModel
 
 
 
+    /// <summary>
+    /// Marks properties as JSON-backed when the stored-as-JSON attribute is present.
+    /// </summary>
     [Fact]
     public void ModelInspector_BuildPropertyMetadata_Sets_IsStoredAsJson_From_StoredAsJsonAttribute()
     {
@@ -104,6 +119,10 @@ public class SampleModel { public string Metadata { get; set; } = string.Empty; 
 
         Assert.True(metadata.IsStoredAsJson);
     }
+
+    /// <summary>
+    /// Treats join-table models as excluded from API generation.
+    /// </summary>
     [Fact]
     public void ModelInspector_BuildClassMetadata_Sets_ExcludeFromApi_For_JoinTable()
     {
@@ -133,6 +152,10 @@ public class SampleJoin
         Assert.True(metadata.IsJoinTable);
         Assert.True(metadata.ExcludeFromApi);
     }
+
+    /// <summary>
+    /// Excludes JSON-ignored properties from request DTO generation.
+    /// </summary>
     [Fact]
     public void ModelInspector_ShouldIncludeInRequest_Excludes_JsonIgnore()
     {

@@ -5,8 +5,14 @@ using Xunit;
 
 namespace BrighterTools.CodeGenerator.Tests;
 
+/// <summary>
+/// Verifies controller stub generation filters and exclusion rules.
+/// </summary>
 public class ControllerStubGeneratorTests
 {
+    /// <summary>
+    /// Skips controller stubs for models excluded by configuration.
+    /// </summary>
     [Fact]
     public void Generate_Skips_Models_Excluded_From_ControllerScaffoldExcludedModels()
     {
@@ -24,6 +30,9 @@ public class ControllerStubGeneratorTests
         Assert.Contains(files, file => file.RelativePath.EndsWith("PostsController.cs", StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// Continues to skip join tables and JSON-only models even when no explicit exclusions are configured.
+    /// </summary>
     [Fact]
     public void Generate_Still_Skips_JoinTable_And_JsonModel()
     {
