@@ -190,6 +190,61 @@ This keeps the app repo stable while allowing rapid changes in the shared genera
 brightertools-codegenerator
 ```
 
+## Installing the tool in a consuming app
+
+Inside the consuming app repo:
+
+1. create a local tool manifest if the repo does not already have one
+2. install the tool from the desired feed
+3. set `toolCommand` in `CodeGeneration\codegen.json`
+4. run generation via the repo's own script
+
+### Install from nuget.org
+
+```text
+dotnet new tool-manifest
+dotnet tool install BrighterTools.CodeGenerator
+```
+
+### Install from a specific feed
+
+```text
+dotnet new tool-manifest
+dotnet tool install BrighterTools.CodeGenerator --add-source <feed-url>
+```
+
+### Restore and run in the app repo
+
+```text
+dotnet tool restore
+dotnet tool run brightertools-codegenerator -- --config CodeGeneration\codegen.json
+```
+
+### Example tool-based `codegen.json`
+
+When the tool is installed from NuGet, the consuming app should clear `projectPath` and `templatesDirectory` and rely on `toolCommand`:
+
+```json
+{
+  "toolName": "BrighterTools",
+  "toolVersion": "1.1.0",
+  "rootDirectory": "..",
+  "appProjectPath": "..\\App\\App.csproj",
+  "appDirectory": "..\\App",
+  "toolCommand": "brightertools-codegenerator",
+  "typeScriptModelNamespacePrefixes": [
+    "App.Api.Models"
+  ],
+  "typeScriptModelsGeneratedOnly": true,
+  "typeScriptModelsOutputPath": "..\\reactapp\\src\\types\\generated\\api-models.g.ts",
+  "typeScriptEnumsOutputPath": "..\\reactapp\\src\\types\\generated\\app-enums.g.ts",
+  "typeScriptServiceScaffoldsOutputDirectory": "..\\reactapp\\src\\services\\generated",
+  "typeScriptCoreTypesImportPath": "../../types/core-app-types",
+  "typeScriptGeneratedModelsImportPath": "../../types/generated/api-models.g",
+  "typeScriptHttpRequestImportPath": "../httpRequest"
+}
+```
+
 Recommended distribution:
 
 1. publish the tool package to a NuGet feed
@@ -222,6 +277,63 @@ dotnet tool install BrighterTools.CodeGenerator
 ```
 
 That installation adds the tool to the repo's `.config\dotnet-tools.json` and keeps it out of the app's runtime deployment output.
+
+## Packaging for NuGet
+
+This repo includes:
+
+```text
+PackageToolForNuGet.bat
+```
+
+Run it from the repo root:
+
+```text
+PackageToolForNuGet.bat
+```
+
+Or override the version:
+
+```text
+PackageToolForNuGet.bat 1.1.0
+```
+
+The script:
+
+1. restores the project
+2. builds in `Release`
+3. packs the dotnet tool package into `artifacts\nuget`
+4. prints the `dotnet nuget push` command to publish it
+
+## Packaging in Visual Studio
+
+From Visual Studio:
+
+1. open `BrighterTools.CodeGenerator.slnx`
+2. switch to `Release`
+3. build the `BrighterTools.CodeGenerator` project
+4. right-click the project and choose `Pack`
+
+Expected output:
+
+- `artifacts\nuget\BrighterTools.CodeGenerator.<version>.nupkg`
+- `artifacts\nuget\BrighterTools.CodeGenerator.<version>.snupkg`
+
+## Publishing to NuGet
+
+After packing, publish with:
+
+```text
+dotnet nuget push artifacts\nuget\BrighterTools.CodeGenerator.<version>.nupkg --source https://api.nuget.org/v3/index.json --api-key <API_KEY>
+```
+
+Optional symbols package:
+
+```text
+dotnet nuget push artifacts\nuget\BrighterTools.CodeGenerator.<version>.snupkg --source https://api.nuget.org/v3/index.json --api-key <API_KEY>
+```
+
+If using a private feed instead, replace the `--source` URL with the GitHub Packages or Azure Artifacts endpoint for that feed.
 
 ## Important operational rule
 
