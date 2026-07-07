@@ -341,7 +341,9 @@ permissions:
   id-token: write
 ```
 
-No `NUGET_API_KEY` repository secret is required for this GitHub-based publishing flow.
+The publish workflow uses `NuGet/login@v1` with the `brightertools` NuGet profile name to exchange the GitHub OIDC token for a short-lived NuGet API key during the job.
+
+No long-lived `NUGET_API_KEY` repository secret is required for this GitHub-based publishing flow.
 
 ### Publish from GitHub Actions
 
@@ -358,7 +360,8 @@ The workflow will:
 2. build
 3. pack
 4. upload the `.nupkg` and `.snupkg` artifacts
-5. push the package to `https://api.nuget.org/v3/index.json` using Trusted Publishing
+5. call `NuGet/login@v1` to get a short-lived NuGet API key from the GitHub OIDC identity
+6. push the package to `https://api.nuget.org/v3/index.json` using that temporary key
 
 ### Manual local publishing
 

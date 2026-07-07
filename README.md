@@ -28,6 +28,7 @@ Code generation tooling for BrighterTools projects, packaged as a dotnet tool.
 ## Trusted Publishing Setup
 - You must configure Trusted Publishing in `nuget.org` for this GitHub repository before the publish workflow can push packages.
 - The workflow already includes the GitHub OIDC permission it needs: `id-token: write`.
-- No `NUGET_API_KEY` repository secret is required for the GitHub publishing workflow once Trusted Publishing is configured.
+- The workflow uses `NuGet/login@v1` to exchange the GitHub OIDC token for a short-lived NuGet API key during the publish job.
+- No long-lived `NUGET_API_KEY` repository secret is required for the GitHub publishing workflow once Trusted Publishing is configured.
 
 Full setup and consuming-app guidance lives in `usage.md`.
