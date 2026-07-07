@@ -22,8 +22,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <VersionPrefix>1.1.0</VersionPrefix>
-    <PackageReleaseNotes>v1.1.0 - Dotnet tool packaging
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <PackageReleaseNotes>v1.0.0 - Dotnet tool packaging
 
 Included:
 - Packaged BrighterTools.CodeGenerator as a dotnet tool.

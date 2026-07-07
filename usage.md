@@ -227,7 +227,7 @@ When the tool is installed from NuGet, the consuming app should clear `projectPa
 ```json
 {
   "toolName": "BrighterTools",
-  "toolVersion": "1.1.0",
+  "toolVersion": "1.0.0",
   "rootDirectory": "..",
   "appProjectPath": "..\\App\\App.csproj",
   "appDirectory": "..\\App",
@@ -295,7 +295,7 @@ PackageToolForNuGet.bat
 Or override the version:
 
 ```text
-PackageToolForNuGet.bat 1.1.0
+PackageToolForNuGet.bat 1.0.0
 ```
 
 The script:
