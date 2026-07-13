@@ -23,8 +23,7 @@ public sealed class TypeScriptServiceScaffoldGenerator(TemplateRenderer template
                 tool = new
                 {
                     name = context.Options.ToolName,
-                    version = context.Options.ToolVersion,
-                    generated_at = context.GeneratedAt.ToString("O")
+                    version = context.Options.ToolVersion
                 },
                 options = context.Options,
                 model,

@@ -17,8 +17,7 @@ public sealed class DataServiceRegistrationGenerator(TemplateRenderer templateRe
             tool = new
             {
                 name = context.Options.ToolName,
-                version = context.Options.ToolVersion,
-                generated_at = context.GeneratedAt.ToString("O")
+                version = context.Options.ToolVersion
             },
             repository_models = repositoryModels,
             service_models = serviceModels,

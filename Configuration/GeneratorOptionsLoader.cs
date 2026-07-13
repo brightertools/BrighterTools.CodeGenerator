@@ -20,6 +20,8 @@ internal static class GeneratorOptionsLoader
         var rootDirectory = ResolveLegacyRootDirectory();
         return new GeneratorOptions
         {
+            ConfigPath = string.Empty,
+            ConfigDirectory = string.Empty,
             RootDirectory = rootDirectory,
             ProjectPath = Path.Combine(rootDirectory, "BrighterTools.CodeGenerator", "BrighterTools.CodeGenerator.csproj"),
             AppProjectPath = Path.Combine(rootDirectory, "App", "App.csproj"),
@@ -80,8 +82,10 @@ internal static class GeneratorOptionsLoader
         return new GeneratorOptions
         {
             ToolName = string.IsNullOrWhiteSpace(rawOptions.ToolName) ? "BrighterTools.CodeGenerator" : rawOptions.ToolName,
-            ToolVersion = string.IsNullOrWhiteSpace(rawOptions.ToolVersion) ? "2.0.0" : rawOptions.ToolVersion,
+            ToolVersion = string.IsNullOrWhiteSpace(rawOptions.ToolVersion) ? "2.0.3" : rawOptions.ToolVersion,
             ToolCommand = string.IsNullOrWhiteSpace(rawOptions.ToolCommand) ? "brightertools-codegenerator" : rawOptions.ToolCommand,
+            ConfigPath = fullConfigPath,
+            ConfigDirectory = configDirectory,
             RootDirectory = rootDirectory,
             ProjectPath = projectPath,
             AppProjectPath = appProjectPath,

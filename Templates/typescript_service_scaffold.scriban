@@ -1,8 +1,9 @@
 // ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Generator version: {{ tool.version }}
 // This file is generated as a scaffold reference only.
 // Copy the operations you want to expose into ../{{ artifact.service_export_name }}.ts.
 // Do not uncomment this file directly.
-// Generated on {{ tool.generated_at }}
 // ----------------------------------------------------------------------------------------------
 {{ has_bool_state = false }}
 {{ for prop in model.SettableStateProperties }}

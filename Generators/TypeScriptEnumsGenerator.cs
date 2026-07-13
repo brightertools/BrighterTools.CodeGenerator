@@ -17,8 +17,7 @@ public sealed class TypeScriptEnumsGenerator(TemplateRenderer templateRenderer) 
             tool = new
             {
                 name = context.Options.ToolName,
-                version = context.Options.ToolVersion,
-                generated_at = context.GeneratedAt.ToString("O")
+                version = context.Options.ToolVersion
             },
             options = context.Options,
             models = context.Models,

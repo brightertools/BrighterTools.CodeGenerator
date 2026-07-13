@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Optional package version override (for example 1.1.1)
+        description: Optional package version override (for example 2.0.3)
         required: false
         type: string
       publish_to_nuget:
-        description: Publish the generated package to nuget.org
+        description: Actually publish the generated package to nuget.org (must be true to push)
         required: true
         default: false
         type: boolean

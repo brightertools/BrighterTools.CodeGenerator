@@ -1,8 +1,9 @@
 // ----------------------------------------------------------------------------------------------
+// This file was generated using {{ tool.name }}
+// Generator version: {{ tool.version }}
 // This file is generated as a scaffold reference only.
 // Copy the actions you want to expose into ../{{ model.PluralName }}Controller.cs.
 // Do not uncomment this file directly.
-// Generated on {{ tool.generated_at }}
 // ----------------------------------------------------------------------------------------------
 
 #nullable enable

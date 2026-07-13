@@ -12,8 +12,7 @@ public sealed class DbContextGenerator(TemplateRenderer templateRenderer) : ICod
             tool = new
             {
                 name = context.Options.ToolName,
-                version = context.Options.ToolVersion,
-                generated_at = context.GeneratedAt.ToString("O")
+                version = context.Options.ToolVersion
             },
             models = context.Models,
             enums = context.Enums,

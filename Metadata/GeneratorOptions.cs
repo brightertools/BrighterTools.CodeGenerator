@@ -3,8 +3,10 @@ namespace BrighterTools.CodeGenerator.Metadata;
 public sealed class GeneratorOptions
 {
     public string ToolName { get; init; } = "BrighterTools.CodeGenerator";
-    public string ToolVersion { get; init; } = "2.0.0";
+    public string ToolVersion { get; init; } = "2.0.3";
     public string ToolCommand { get; init; } = "brightertools-codegenerator";
+    public string ConfigPath { get; init; } = string.Empty;
+    public string ConfigDirectory { get; init; } = string.Empty;
     public string RootDirectory { get; init; } = string.Empty;
     public string ProjectPath { get; init; } = string.Empty;
     public string AppProjectPath { get; init; } = string.Empty;

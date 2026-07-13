@@ -26,8 +26,7 @@ internal static class CodeGeneratorRunner
             Models = models,
             AllModels = allModels,
             ApiModels = apiModels,
-            Enums = enums,
-            GeneratedAt = DateTimeOffset.Now
+            Enums = enums
         };
 
         var templateLoader = new TemplateLoader(options.TemplatesDirectory);
@@ -37,7 +36,7 @@ internal static class CodeGeneratorRunner
 
         var firstPassGenerators = generators.Where(x => x is not TypeScriptModelsGenerator).ToList();
         var firstPassFiles = firstPassGenerators.SelectMany(x => x.Generate(context)).ToList();
-        var totalFiles = WriteGeneratedFiles(options, firstPassFiles);
+        var writeResult = WriteGeneratedFiles(options, firstPassFiles);
 
         if (generators.Any(x => x is TypeScriptModelsGenerator))
         {
@@ -48,8 +47,7 @@ internal static class CodeGeneratorRunner
                 Models = models,
                 AllModels = allModels,
                 ApiModels = refreshedApiModels,
-                Enums = enums,
-                GeneratedAt = context.GeneratedAt
+                Enums = enums
             };
 
             var typeScriptFiles = generators
@@ -57,22 +55,23 @@ internal static class CodeGeneratorRunner
                 .SelectMany(x => x.Generate(refreshedContext))
                 .ToList();
 
-            totalFiles += WriteGeneratedFiles(options, typeScriptFiles);
+            writeResult.Add(WriteGeneratedFiles(options, typeScriptFiles));
         }
 
-        Console.WriteLine($"Generated {totalFiles} file(s).");
+        GenerationRunHistoryWriter.AppendIfEnabled(options, writeResult);
+        Console.WriteLine($"Generated {writeResult.WrittenCount} file(s).");
         return 0;
     }
 
-    private static int WriteGeneratedFiles(GeneratorOptions options, IEnumerable<GeneratedFile> generatedFiles)
+    private static GeneratedFileWriteResult WriteGeneratedFiles(GeneratorOptions options, IEnumerable<GeneratedFile> generatedFiles)
     {
-        var count = 0;
+        var result = new GeneratedFileWriteResult();
         foreach (var generatedFile in generatedFiles)
         {
-            count++;
             var fullPath = Path.Combine(options.RootDirectory, generatedFile.RelativePath);
             if (!generatedFile.OverwriteIfExists && File.Exists(fullPath))
             {
+                result.SkippedExistingCount++;
                 Console.WriteLine($"Skipped existing {generatedFile.RelativePath}");
                 continue;
             }
@@ -83,6 +82,7 @@ internal static class CodeGeneratorRunner
                 continue;
             }
 
+            result.WrittenCount++;
             var directory = Path.GetDirectoryName(fullPath);
             if (!string.IsNullOrWhiteSpace(directory))
             {
@@ -93,7 +93,7 @@ internal static class CodeGeneratorRunner
             Console.WriteLine($"Generated {generatedFile.RelativePath}");
         }
 
-        return count;
+        return result;
     }
 
     private static IEnumerable<ICodeGenerator> CreateGenerators(TemplateRenderer templateRenderer, GeneratorOptions options)

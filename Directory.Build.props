@@ -22,18 +22,15 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <VersionPrefix>2.0.0</VersionPrefix>
-    <PackageReleaseNotes>v2.0.0 - Cross-platform code generation workflow
+    <VersionPrefix>2.0.3</VersionPrefix>
+    <PackageReleaseNotes>v2.0.3 - Documentation refresh and publishing follow-up
 
 Included:
-- Added explicit generate and init CLI commands.
-- Added scaffolded cross-platform CodeGeneration wrappers for consuming repos.
-- Moved cleanup and verification behavior into config-driven repo workflow settings.
-- Standardized config-relative path resolution from the codegen.json folder.
+- Refined the documentation to describe the current cross-platform workflow in present-state terms.
+- Kept package, scaffold, and publishing metadata aligned for the next release.
 
 Breaking changes:
-- Consuming repos should move to the scaffolded PowerShell wrapper workflow for cross-platform support.
-- Newly scaffolded configs and scripts follow the v2 workflow conventions.</PackageReleaseNotes>
+- None.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">

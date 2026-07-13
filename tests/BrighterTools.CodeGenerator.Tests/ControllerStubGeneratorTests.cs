@@ -71,8 +71,7 @@ public class ControllerStubGeneratorTests
             Models = models,
             AllModels = [],
             ApiModels = [],
-            Enums = [],
-            GeneratedAt = DateTimeOffset.UtcNow
+            Enums = []
         };
     }
 }

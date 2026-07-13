@@ -22,9 +22,11 @@ public sealed class TemplateRenderer(TemplateLoader templateLoader)
         };
 
         var builtins = new ScriptObject();
+        var stringTemplateFunctions = new StringTemplateFunctions();
+        var codeTemplateFunctions = new CodeTemplateFunctions();
         builtins.Import(model, renamer: member => member.Name);
-        builtins.Import(new StringTemplateFunctions(), renamer: member => member.Name);
-        builtins.Import(new CodeTemplateFunctions(), renamer: member => member.Name);
+        builtins.Import(stringTemplateFunctions, renamer: member => member.Name);
+        builtins.Import(codeTemplateFunctions, renamer: member => member.Name);
         context.PushGlobal(builtins);
 
         return template.Render(context);
@@ -43,14 +45,6 @@ public sealed class TemplateRenderer(TemplateLoader templateLoader)
 
     private sealed class CodeTemplateFunctions
     {
-        public string file_header(string toolName, string toolVersion, string generatedAt) =>
-            $@"// ----------------------------------------------------------------------------------------------
-// This file was generated using {toolName}
-// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
-// Generated on {generatedAt}
-// ----------------------------------------------------------------------------------------------
-";
-
         public string dto_type(string typeName, bool isNullable, bool makeNullable)
         {
             var normalized = typeName switch

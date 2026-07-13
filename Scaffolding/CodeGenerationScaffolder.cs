@@ -124,7 +124,7 @@ internal sealed class CodeGenerationScaffolder
         {
             RepoName = layout.RepoName,
             ToolName = $"{SanitizeName(layout.RepoName)}.CodeGeneration",
-            ToolVersion = "2.0.0",
+            ToolVersion = "2.0.3",
             RootDirectory = ToConfigRelativePath(configDirectoryPath, layout.RepoRootPath),
             ProjectPath = string.Empty,
             AppProjectPath = layout.AppProjectPath is null ? string.Empty : ToConfigRelativePath(configDirectoryPath, layout.AppProjectPath),
@@ -619,6 +619,8 @@ exit /b %errorlevel%
         builder.AppendLine("- `rootDirectory` points back to the repo root using a relative path.");
         builder.AppendLine("- `projectPath` and `templatesDirectory` are intentionally blank for tool-based usage.");
         builder.AppendLine("- The Windows `.bat` wrappers prefer `pwsh` and fall back to Windows PowerShell if `pwsh` is not installed.");
+        builder.AppendLine("- Successful non-dry-run generation writes `CodeGeneration/generation-history.jsonl` beside `codegen.json`.");
+        builder.AppendLine("- Generated file headers stay deterministic and do not include a per-run timestamp.");
         builder.AppendLine("- If the repo does not yet have a local tool manifest, run `dotnet new tool-manifest` and `dotnet tool install BrighterTools.CodeGenerator` from the repo root.");
 
         if (unresolvedItems.Count > 0)

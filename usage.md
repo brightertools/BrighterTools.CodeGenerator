@@ -1,14 +1,8 @@
 # BrighterTools.CodeGenerator Usage
 
-## Purpose
+This guide is for developers integrating `BrighterTools.CodeGenerator` into an application repo. For the high-level overview and package link, start with [README.md](./README.md).
 
-`BrighterTools.CodeGenerator` is a shared dotnet tool for repo-owned code generation workflows.
-
-The generator stays shared. The consuming repo owns:
-
-- `CodeGeneration/codegen.json`
-- repo-specific cleanup and verification rules
-- repo entrypoint scripts for local development and CI
+Install the tool as a NuGet local tool in the consuming repo before wiring up code generation.
 
 ## Commands
 
@@ -109,7 +103,7 @@ Core fields:
 ```json
 {
   "toolName": "MyApp.CodeGeneration",
-  "toolVersion": "2.0.0",
+  "toolVersion": "2.0.3",
   "rootDirectory": "..",
   "projectPath": "",
   "appProjectPath": "../App/App.csproj",
@@ -143,6 +137,13 @@ Rules for workflow fields:
 - those paths resolve from the `codegen.json` folder
 - commands such as `npm run build` stay as plain command strings
 
+## Generated Headers And Run History
+
+- Generated files use deterministic comment headers without a per-run timestamp.
+- Generated headers include tool identity so output stays traceable and stable in git.
+- Successful non-dry-run config-based generation appends a run-history entry to `CodeGeneration/generation-history.jsonl`.
+- The run-history file is written by the shared tool, so direct `generate --config ...` usage and wrapper-script usage behave the same way.
+
 ## Generate Script Behavior
 
 `GenerateCode.ps1`:
@@ -166,7 +167,7 @@ Rules for workflow fields:
 4. builds configured backend projects
 5. runs configured frontend build commands
 
-By default verification skips the old Windows-only build-lock process inspection. Set `verifySkipBuildLockCheck` to `false` only if you intentionally want that extra Windows-only guard.
+Verification skips the optional Windows build-lock process inspection by default. Set `verifySkipBuildLockCheck` to `false` only if you intentionally want that extra Windows-only guard.
 
 ## Direct Project Usage
 
@@ -177,27 +178,6 @@ If you are actively developing the generator itself, a consuming repo can still 
 - `projectPath`
 - `templatesDirectory`
 
-and run the generator project directly from its own wrapper script. That remains supported, but it is no longer the primary documented path.
+and run the generator project directly from its own wrapper script. That remains supported for generator development, while the tool-based workflow above is the standard integration path.
 
-## Packaging
-
-For this repo itself:
-
-```text
-PackageToolForNuGet.bat
-```
-
-Or from the CLI:
-
-```text
-dotnet restore ./BrighterTools.CodeGenerator.slnx --configfile ./NuGet.config
-dotnet build ./BrighterTools.CodeGenerator.slnx -c Release --no-restore
-dotnet pack ./BrighterTools.CodeGenerator.csproj -c Release --no-build --output ./artifacts/nuget --configfile ./NuGet.config
-```
-
-Expected artifacts:
-
-- `artifacts/nuget/BrighterTools.CodeGenerator.<version>.nupkg`
-- `artifacts/nuget/BrighterTools.CodeGenerator.<version>.snupkg`
-
-Publishing to `nuget.org` is handled through the GitHub Actions `publish-tool` workflow with Trusted Publishing.
+For local packaging and NuGet publishing of this repo, see [publishing.md](./publishing.md).

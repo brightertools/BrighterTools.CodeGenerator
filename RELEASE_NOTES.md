@@ -1,3 +1,50 @@
+# v2.0.3 - Documentation Refresh and Publishing Follow-Up
+
+## Summary
+
+Patch release that tightens the user-facing documentation and aligns publish metadata for the next NuGet release.
+
+## Included
+
+- Updated README and usage guidance to describe the current workflow directly.
+- Kept scaffolded defaults, workflow examples, and package metadata aligned with the current release.
+
+## Breaking Changes
+
+- None.
+
+# v2.0.2 - Deterministic Headers and Run History
+
+## Summary
+
+Follow-up release that makes generated output more stable in git and records successful generation runs in a repo-owned history file.
+
+## Included
+
+- Removed per-run timestamps from generated file headers.
+- Added deterministic generator version markers in generated headers.
+- Added `CodeGeneration/generation-history.jsonl` logging for successful config-based runs.
+
+## Breaking Changes
+
+- Generated file headers no longer include the old run-date line.
+
+# v2.0.1 - Documentation and Publishing Follow-Up
+
+## Summary
+
+Follow-up release to tighten the documentation split and clarify the NuGet publishing workflow after the v2 rollout.
+
+## Included
+
+- Split documentation into audience-focused guides.
+- Added a dedicated maintainer publishing guide.
+- Clarified the GitHub Actions publishing path for NuGet.
+
+## Breaking Changes
+
+- None.
+
 # v2.0.0 - Cross-Platform Code Generation
 
 ## Summary
