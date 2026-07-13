@@ -3,7 +3,8 @@ namespace BrighterTools.CodeGenerator.Metadata;
 public sealed class GeneratorOptions
 {
     public string ToolName { get; init; } = "BrighterTools.CodeGenerator";
-    public string ToolVersion { get; init; } = "7.0.0";
+    public string ToolVersion { get; init; } = "2.0.0";
+    public string ToolCommand { get; init; } = "brightertools-codegenerator";
     public string RootDirectory { get; init; } = string.Empty;
     public string ProjectPath { get; init; } = string.Empty;
     public string AppProjectPath { get; init; } = string.Empty;
@@ -40,6 +41,13 @@ public sealed class GeneratorOptions
     public IReadOnlyList<string> TypeScriptServiceExcludedModels { get; init; } = [];
     public IReadOnlyList<string> ControllerScaffoldExcludedModels { get; init; } = [];
     public IReadOnlyList<string> TypeScriptModelExcludedTypeNames { get; init; } = [];
+    public IReadOnlyList<string> CleanupDirectories { get; init; } = [];
+    public IReadOnlyList<string> CleanupFilePatterns { get; init; } = [];
+    public IReadOnlyList<string> VerifyRequiredFiles { get; init; } = [];
+    public IReadOnlyList<string> VerifyDotnetBuildProjects { get; init; } = [];
+    public IReadOnlyList<string> VerifyFrontendWorkingDirectories { get; init; } = [];
+    public IReadOnlyList<string> VerifyFrontendBuildCommands { get; init; } = [];
+    public bool VerifySkipBuildLockCheck { get; init; } = true;
     public bool DryRun { get; init; }
 }
 

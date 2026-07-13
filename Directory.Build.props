@@ -22,16 +22,18 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <VersionPrefix>1.0.0</VersionPrefix>
-    <PackageReleaseNotes>v1.0.0 - Dotnet tool packaging
+    <VersionPrefix>2.0.0</VersionPrefix>
+    <PackageReleaseNotes>v2.0.0 - Cross-platform code generation workflow
 
 Included:
-- Packaged BrighterTools.CodeGenerator as a dotnet tool.
-- Added a stable tool command name for consuming application repos.
-- Clarified consuming-app configuration and deployment guidance.
+- Added explicit generate and init CLI commands.
+- Added scaffolded cross-platform CodeGeneration wrappers for consuming repos.
+- Moved cleanup and verification behavior into config-driven repo workflow settings.
+- Standardized config-relative path resolution from the codegen.json folder.
 
 Breaking changes:
-- None. Existing direct project execution remains supported.</PackageReleaseNotes>
+- Consuming repos should move to the scaffolded PowerShell wrapper workflow for cross-platform support.
+- Newly scaffolded configs and scripts follow the v2 workflow conventions.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">

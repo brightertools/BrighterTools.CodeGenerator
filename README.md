@@ -6,24 +6,32 @@ Code generation tooling for BrighterTools projects, packaged as a dotnet tool.
 - `BrighterTools.CodeGenerator` (console tool)
 - `BrighterTools.CodeGenerator.Tests` (xUnit tests)
 
+## Commands
+- Scaffold a consuming repo: `dotnet tool run brightertools-codegenerator -- init`
+- Generate from app-owned config: `dotnet tool run brightertools-codegenerator -- generate --config CodeGeneration/codegen.json`
+- Legacy-compatible invocation: `dotnet tool run brightertools-codegenerator -- --config CodeGeneration/codegen.json`
+
+## Cross-Platform Workflow
+- Relative `--config` paths resolve from the current working directory.
+- Relative paths inside `codegen.json` resolve from the folder containing that config file.
+- Consuming repos should keep a repo-owned `CodeGeneration` folder with `pwsh` entrypoints and thin Windows `.bat` shims.
+- The generated Windows `.bat` shims prefer `pwsh` and fall back to Windows PowerShell when `pwsh` is not installed.
+- `init` scaffolds those starter files for convention-based repos and keeps `projectPath` / `templatesDirectory` empty for tool-based usage.
+
 ## Development
 - Build: `dotnet build BrighterTools.CodeGenerator.slnx -c Release`
 - Test: `dotnet test BrighterTools.CodeGenerator.slnx -c Release`
 - Pack locally: `PackageToolForNuGet.bat`
 
+## CI Packaging
+- GitHub Actions validates restore, build, and test on Windows, Linux, and macOS.
+- Packing still runs on Ubuntu and uploads the `.nupkg` and `.snupkg` artifacts.
+- The packaged `.nupkg` and `.snupkg` files are uploaded as workflow artifacts.
+- The `publish-tool` workflow is configured for Trusted Publishing with GitHub OIDC, not a stored NuGet API key.
+
 ## NuGet Sources
 - The repo-level `NuGet.config` clears inherited package sources and restores from `nuget.org`.
 - This avoids machine-specific feeds such as Telerik affecting restore and pack.
-
-## Tool Install
-- Create a manifest in the consuming repo: `dotnet new tool-manifest`
-- Install the tool: `dotnet tool install BrighterTools.CodeGenerator`
-- Run it with app-owned config: `dotnet tool run brightertools-codegenerator -- --config CodeGeneration\codegen.json`
-
-## CI Packaging
-- GitHub Actions validates restore, build, test, and pack on every push and pull request.
-- The packaged `.nupkg` and `.snupkg` files are uploaded as workflow artifacts.
-- The `publish-tool` workflow is configured for Trusted Publishing with GitHub OIDC, not a stored NuGet API key.
 
 ## Trusted Publishing Setup
 - You must configure Trusted Publishing in `nuget.org` for this GitHub repository before the publish workflow can push packages.

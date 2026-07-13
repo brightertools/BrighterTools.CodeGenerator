@@ -9,8 +9,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-test-pack:
-    runs-on: ubuntu-latest
+  build-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -29,6 +37,25 @@ jobs:
 
       - name: Test
         run: dotnet test ./BrighterTools.CodeGenerator.slnx --configuration Release --no-build --verbosity normal
+
+  pack-tool:
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore ./BrighterTools.CodeGenerator.slnx --configfile ./NuGet.config
+
+      - name: Build
+        run: dotnet build ./BrighterTools.CodeGenerator.slnx --configuration Release --no-restore
 
       - name: Pack tool
         run: dotnet pack ./BrighterTools.CodeGenerator.csproj --configuration Release --no-build --output ./artifacts/nuget --configfile ./NuGet.config

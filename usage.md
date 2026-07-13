@@ -2,416 +2,202 @@
 
 ## Purpose
 
-`BrighterTools.CodeGenerator` is a shared executable code generator for .NET application repos.
+`BrighterTools.CodeGenerator` is a shared dotnet tool for repo-owned code generation workflows.
 
-It currently generates:
+The generator stays shared. The consuming repo owns:
 
-- base repositories and generated repository implementations
-- generated services and custom service stubs
-- request/response DTOs
-- split `ApplicationDbContext` partials
-- generated DI registration for repositories and services
-- safe controller stubs plus generated controller scaffold references with commented example endpoints
-- TypeScript API model bundles from generated C# API DTOs
-- TypeScript enum bundles from configured enum namespaces
-- TypeScript service scaffold bundles with commented endpoint examples
+- `CodeGeneration/codegen.json`
+- repo-specific cleanup and verification rules
+- repo entrypoint scripts for local development and CI
 
-The intended integration model is:
+## Commands
 
-- keep generator source in a shared repo
-- keep app-specific paths and scripts inside each consuming app repo
+Primary commands:
 
-## Current execution model
+```text
+brightertools-codegenerator generate --config CodeGeneration/codegen.json
+brightertools-codegenerator init
+```
 
-The generator entrypoint supports:
+Backward-compatible command:
+
+```text
+brightertools-codegenerator --config CodeGeneration/codegen.json
+```
+
+`generate` supports:
 
 - `--config <path>`
 - `--dry-run`
 
-The config file belongs to the consuming app, not to this repo.
+`init` supports:
 
-Example:
+- `--repo-root <path>`
+- `--config-dir <path>`
+- `--force`
+
+## Path Rules
+
+- Relative `--config` paths resolve from the current working directory.
+- Relative paths inside `codegen.json` resolve from the folder containing that config file.
+- Starter configs use forward-slash relative paths so the same config works on Windows and Unix-style systems.
+- Generated output paths are normalized back to repo-root-relative paths before files are written.
+
+## Init Workflow
+
+Run `init` from the consuming repo root:
 
 ```text
-Skilledly\CodeGeneration\codegen.json
+dotnet tool run brightertools-codegenerator -- init
 ```
 
-## Recommended consuming-app setup
+By default this creates:
 
-Inside the app repo, add a `CodeGeneration` folder containing:
+- `CodeGeneration/codegen.json`
+- `CodeGeneration/GenerateCode.ps1`
+- `CodeGeneration/DeleteGeneratedCode.ps1`
+- `CodeGeneration/VerifyCodeGeneration.ps1`
+- `CodeGeneration/GenerateCode.bat`
+- `CodeGeneration/DeleteGeneratedCode.bat`
+- `CodeGeneration/VerifyCodeGeneration.bat`
+- `CodeGeneration/README.md`
 
-- `codegen.json`
-- `GenerateCode.bat`
-- `DeleteGeneratedCode.bat`
-- optional `README.md`
+Detection rules:
 
-This keeps the app in control of:
+- app project: prefer `App/App.csproj`, otherwise first `App/*.csproj`
+- backend web project: prefer `Web/Web.Server/Web.Server.csproj`
+- frontend directory: prefer `Web/web.client`
+- controller directories: prefer `Web/Web.Server/Controllers/V1`, otherwise `Web/Web.Server/Controllers`
 
-- where generated files go
-- which app project is inspected
-- which generator project/tool is used
-- how generation is run in local dev and CI
+If a path cannot be discovered, the scaffold still completes and the generated `README.md` calls out the missing values to edit.
 
-## Important reference rule
+## Tool-Based Repo Setup
 
-The consuming app should not add `BrighterTools.CodeGenerator` as a normal `ProjectReference` or `PackageReference`.
+Inside the consuming repo:
 
-Instead:
+```text
+dotnet new tool-manifest
+dotnet tool install BrighterTools.CodeGenerator
+dotnet tool run brightertools-codegenerator -- init
+```
 
-- the app's `codegen.json` points to the generator project via `projectPath` while developing locally, or
-- the app's `codegen.json` points to an installed command via `toolCommand` once the generator is packaged as a dotnet tool
+Then run generation with either:
 
-This means:
+```text
+pwsh ./CodeGeneration/GenerateCode.ps1
+```
 
-- `appProjectPath` is the app project being inspected
-- `projectPath` is only the generator executable project used to run generation
-- the generator is a build-time/dev-time tool and is not copied into the app's runtime output or deployed with the app unless you explicitly reference it as an app dependency
+or:
 
-## Example app config
+```text
+dotnet tool run brightertools-codegenerator -- generate --config CodeGeneration/codegen.json
+```
 
-Example `codegen.json` for direct project execution:
+Windows convenience wrappers remain available:
+
+```text
+CodeGeneration\GenerateCode.bat
+CodeGeneration\VerifyCodeGeneration.bat
+```
+
+The generated Windows `.bat` wrappers prefer `pwsh` and fall back to Windows PowerShell if `pwsh` is not installed.
+
+## Config Shape
+
+Core fields:
 
 ```json
 {
-  "toolName": "BrighterTools",
-  "toolVersion": "7.0.0",
+  "toolName": "MyApp.CodeGeneration",
+  "toolVersion": "2.0.0",
   "rootDirectory": "..",
-  "projectPath": "..\\..\\BrighterTools\\BrighterTools.CodeGenerator\\BrighterTools.CodeGenerator.csproj",
-  "appProjectPath": "..\\App\\App.csproj",
-  "appDirectory": "..\\App",
-  "templatesDirectory": "..\\..\\BrighterTools\\BrighterTools.CodeGenerator\\Templates",
-  "toolCommand": "brightertools-codegenerator",
-  "typeScriptModelNamespacePrefixes": [
-    "App.Api.Models"
-  ],
-  "typeScriptModelsGeneratedOnly": true,
-  "typeScriptModelsOutputPath": "..\\reactapp\\src\\types\\generated\\api-models.g.ts",
-  "typeScriptEnumsOutputPath": "..\\reactapp\\src\\types\\generated\\app-enums.g.ts",
-  "typeScriptServiceScaffoldsOutputDirectory": "..\\reactapp\\src\\services\\generated",
-  "typeScriptCoreTypesImportPath": "../../types/core-app-types",
-  "typeScriptGeneratedModelsImportPath": "../../types/generated/api-models.g",
-  "typeScriptHttpRequestImportPath": "../httpRequest"
+  "projectPath": "",
+  "appProjectPath": "../App/App.csproj",
+  "appDirectory": "../App",
+  "templatesDirectory": "",
+  "toolCommand": "brightertools-codegenerator"
 }
 ```
 
-Meaning:
+Key behavior fields:
 
-- `rootDirectory`
-  - the consuming app repo root
-- `projectPath`
-  - path to this generator project when using direct project execution
-- `appProjectPath`
-  - app project to inspect for models and enums
-- `appDirectory`
-  - root app folder where generated files are written
-- `templatesDirectory`
-  - template folder to load when using direct project execution
-- `toolCommand`
-  - reserved for future dotnet tool execution
-- `enumNamespacePrefixes`
-  - optional namespace prefixes to scan when building the TypeScript enum bundle
-- `typeScriptModelNamespacePrefixes`
-  - namespace prefixes to scan when building the TypeScript API model bundle
-- `typeScriptModelsGeneratedOnly`
-  - when `true`, only classes marked as generated or coming from `.g.cs` files are included in the TypeScript API model bundle
+- `controllerGeneratedDirectory`
+- `controllerStubDirectory`
 - `typeScriptModelsOutputPath`
-  - output path for the generated TypeScript API model bundle, relative to the app repo root or config file
 - `typeScriptEnumsOutputPath`
-  - output path for the generated TypeScript enum bundle, relative to the app repo root or config file
 - `typeScriptServiceScaffoldsOutputDirectory`
-  - output directory for generated TypeScript service scaffolds, relative to the app repo root or config file
-- `typeScriptCoreTypesImportPath`
-  - import path written into scaffold comments for app-specific core request/response types
-- `typeScriptGeneratedModelsImportPath`
-  - import path written into scaffold comments for generated TS DTOs
-- `typeScriptHttpRequestImportPath`
-  - import path written into scaffold comments for the shared HTTP helper
 
-## Recommended app-side scripts
+Repo workflow fields:
 
-### GenerateCode.bat
+- `cleanupDirectories`
+- `cleanupFilePatterns`
+- `verifyRequiredFiles`
+- `verifyDotnetBuildProjects`
+- `verifyFrontendWorkingDirectories`
+- `verifyFrontendBuildCommands`
+- `verifySkipBuildLockCheck`
 
-Recommended behavior:
+Rules for workflow fields:
 
-1. load `codegen.json`
-2. if `projectPath` exists:
-   - `dotnet build <projectPath> --no-restore`
-   - `dotnet run --project <projectPath> --no-build -- --config <configPath>`
-3. otherwise, if `toolCommand` is present:
-   - `dotnet tool run <toolCommand> -- --config <configPath>`
+- the path lists accept relative paths only
+- those paths resolve from the `codegen.json` folder
+- commands such as `npm run build` stay as plain command strings
 
-### DeleteGeneratedCode.bat
+## Generate Script Behavior
 
-Recommended behavior:
+`GenerateCode.ps1`:
 
-- delete generated `*.g.*` files under the app directory
-- delete untouched `!!!CODE_GEN_REPLACE!!!` placeholder files
-- skip `bin` and `obj`
+1. loads the sibling `codegen.json`
+2. resolves the repo root from `rootDirectory`
+3. restores local dotnet tools from the repo root
+4. runs `dotnet tool run <toolCommand> -- generate --config <configPath>`
 
-## Typical generated output in the app repo
+`DeleteGeneratedCode.ps1`:
 
-For a standard app layout, this generator writes to areas such as:
+1. loads cleanup directories and file patterns from config
+2. resolves them relative to the config folder
+3. deletes matching generated files only inside the repo root
 
-- `App/Data/Repositories/Generated`
-- `App/Services/Generated`
-- `App/Dto/*/Requests`
-- `App/Dto/*/Responses`
-- `App/Data/Generated`
-- `Web.Server/Controllers`
-- `reactapp/src/types/generated/api-models.g.ts`
-- `reactapp/src/types/generated/app-enums.g.ts`
+`VerifyCodeGeneration.ps1`:
 
-## Current architecture expectations
+1. runs cleanup
+2. runs generation
+3. checks configured required generated files
+4. builds configured backend projects
+5. runs configured frontend build commands
 
-The current template set assumes conventions similar to:
+By default verification skips the old Windows-only build-lock process inspection. Set `verifySkipBuildLockCheck` to `false` only if you intentionally want that extra Windows-only guard.
 
-- `App/App.csproj` as the app project
-- domain models under the app project
-- generated repository base support in `App/Data/Repositories/BaseRepository.cs`
-- generated DI extension registration
-- split `ApplicationDbContext`
-- custom/non-generated partial stubs marked with `!!!CODE_GEN_REPLACE!!!`
+## Direct Project Usage
 
-## Direct project reference now
+Tool-based execution is the recommended default.
 
-This is the recommended setup while iterating on the generator:
+If you are actively developing the generator itself, a consuming repo can still set:
 
-- point the consuming app's `projectPath` at this `.csproj`
-- point `templatesDirectory` at this repo's `Templates` folder
-- run generation through the consuming app's own `CodeGeneration\GenerateCode.bat`
+- `projectPath`
+- `templatesDirectory`
 
-This keeps the app repo stable while allowing rapid changes in the shared generator repo.
+and run the generator project directly from its own wrapper script. That remains supported, but it is no longer the primary documented path.
 
-## Dotnet tool packaging
+## Packaging
 
-`BrighterTools.CodeGenerator` is packaged as a dotnet tool with command name:
-
-```text
-brightertools-codegenerator
-```
-
-## Installing the tool in a consuming app
-
-Inside the consuming app repo:
-
-1. create a local tool manifest if the repo does not already have one
-2. install the tool from the desired feed
-3. set `toolCommand` in `CodeGeneration\codegen.json`
-4. run generation via the repo's own script
-
-### Install from nuget.org
-
-```text
-dotnet new tool-manifest
-dotnet tool install BrighterTools.CodeGenerator
-```
-
-### Install from a specific feed
-
-```text
-dotnet new tool-manifest
-dotnet tool install BrighterTools.CodeGenerator --add-source <feed-url>
-```
-
-### Restore and run in the app repo
-
-```text
-dotnet tool restore
-dotnet tool run brightertools-codegenerator -- --config CodeGeneration\codegen.json
-```
-
-### Example tool-based `codegen.json`
-
-When the tool is installed from NuGet, the consuming app should clear `projectPath` and `templatesDirectory` and rely on `toolCommand`:
-
-```json
-{
-  "toolName": "BrighterTools",
-  "toolVersion": "1.0.0",
-  "rootDirectory": "..",
-  "appProjectPath": "..\\App\\App.csproj",
-  "appDirectory": "..\\App",
-  "toolCommand": "brightertools-codegenerator",
-  "typeScriptModelNamespacePrefixes": [
-    "App.Api.Models"
-  ],
-  "typeScriptModelsGeneratedOnly": true,
-  "typeScriptModelsOutputPath": "..\\reactapp\\src\\types\\generated\\api-models.g.ts",
-  "typeScriptEnumsOutputPath": "..\\reactapp\\src\\types\\generated\\app-enums.g.ts",
-  "typeScriptServiceScaffoldsOutputDirectory": "..\\reactapp\\src\\services\\generated",
-  "typeScriptCoreTypesImportPath": "../../types/core-app-types",
-  "typeScriptGeneratedModelsImportPath": "../../types/generated/api-models.g",
-  "typeScriptHttpRequestImportPath": "../httpRequest"
-}
-```
-
-Recommended distribution:
-
-1. publish the tool package to a NuGet feed
-2. install it in each consuming app repo with a local tool manifest
-3. clear `projectPath` in `codegen.json`
-4. clear `templatesDirectory` in `codegen.json`
-5. set `toolCommand` to `brightertools-codegenerator`
-
-Then the app can run:
-
-```text
-dotnet tool restore
-dotnet tool run brightertools-codegenerator -- --config CodeGeneration\codegen.json
-```
-
-This avoids hard-wiring the app repo to a local checkout of the generator source.
-
-## Tool deployment options
-
-Recommended order:
-
-1. publish to a private GitHub Packages or Azure Artifacts feed while iterating
-2. publish to `nuget.org` once the package shape and command are stable
-
-If published to `nuget.org`, a consuming app can install it with:
-
-```text
-dotnet new tool-manifest
-dotnet tool install BrighterTools.CodeGenerator
-```
-
-That installation adds the tool to the repo's `.config\dotnet-tools.json` and keeps it out of the app's runtime deployment output.
-
-## Packaging for NuGet
-
-This repo includes:
+For this repo itself:
 
 ```text
 PackageToolForNuGet.bat
 ```
 
-Run it from the repo root:
+Or from the CLI:
 
 ```text
-PackageToolForNuGet.bat
+dotnet restore ./BrighterTools.CodeGenerator.slnx --configfile ./NuGet.config
+dotnet build ./BrighterTools.CodeGenerator.slnx -c Release --no-restore
+dotnet pack ./BrighterTools.CodeGenerator.csproj -c Release --no-build --output ./artifacts/nuget --configfile ./NuGet.config
 ```
 
-Or override the version:
+Expected artifacts:
 
-```text
-PackageToolForNuGet.bat 1.0.0
-```
+- `artifacts/nuget/BrighterTools.CodeGenerator.<version>.nupkg`
+- `artifacts/nuget/BrighterTools.CodeGenerator.<version>.snupkg`
 
-The script:
-
-1. restores the project
-2. builds in `Release`
-3. packs the dotnet tool package into `artifacts\nuget`
-4. reminds you to publish the resulting package via the GitHub Actions Trusted Publishing workflow
-
-## Packaging in Visual Studio
-
-From Visual Studio:
-
-1. open `BrighterTools.CodeGenerator.slnx`
-2. switch to `Release`
-3. build the `BrighterTools.CodeGenerator` project
-4. right-click the project and choose `Pack`
-
-Expected output:
-
-- `artifacts\nuget\BrighterTools.CodeGenerator.<version>.nupkg`
-- `artifacts\nuget\BrighterTools.CodeGenerator.<version>.snupkg`
-
-## Publishing to NuGet with Trusted Publishing
-
-This repo is intended to publish to `nuget.org` through GitHub Actions Trusted Publishing rather than a stored NuGet API key.
-
-### One-time setup
-
-You need to configure Trusted Publishing in `nuget.org` for this GitHub repository and publishing workflow.
-
-That setup happens outside this repo:
-
-1. in `nuget.org`, create or configure the trusted publisher entry for this GitHub repository
-2. scope it to the workflow that is allowed to publish this package
-3. make sure the `BrighterTools.CodeGenerator` package ID is owned by the same `nuget.org` account or organization that configures that trust
-
-The workflow file is already prepared for this by granting GitHub's OIDC permission:
-
-```yaml
-permissions:
-  contents: read
-  id-token: write
-```
-
-The publish workflow uses `NuGet/login@v1` with the `brightertools` NuGet profile name to exchange the GitHub OIDC token for a short-lived NuGet API key during the job.
-
-No long-lived `NUGET_API_KEY` repository secret is required for this GitHub-based publishing flow.
-
-### Publish from GitHub Actions
-
-After packing, publish by running the repository workflow:
-
-1. open the `publish-tool` workflow in GitHub Actions
-2. optionally enter a version override
-3. set `publish_to_nuget` to `true`
-4. run the workflow
-
-The workflow will:
-
-1. restore
-2. build
-3. pack
-4. upload the `.nupkg` and `.snupkg` artifacts
-5. call `NuGet/login@v1` to get a short-lived NuGet API key from the GitHub OIDC identity
-6. push the package to `https://api.nuget.org/v3/index.json` using that temporary key
-
-### Manual local publishing
-
-Local packaging is still supported, but Trusted Publishing is a GitHub-hosted flow. So the recommended approach for `nuget.org` is:
-
-1. pack locally if you want to verify the package contents
-2. commit/push the desired version change
-3. publish from the GitHub Actions workflow
-
-If you do need to publish outside GitHub Actions, use whatever `nuget.org` authentication method is allowed for your account at that time.
-
-If using a private feed instead, replace the publishing approach with the one required by that feed, such as GitHub Packages or Azure Artifacts.
-
-## Important operational rule
-
-The generator can still fall back to older same-repo assumptions if it is run directly without `--config`.
-
-For consuming apps, the safe rule is:
-
-- always run the app-owned generation script
-- let the app pass `--config`
-
-## Suggested app workflow
-
-1. update or inspect `CodeGeneration\codegen.json`
-2. run `CodeGeneration\DeleteGeneratedCode.bat` if a clean regeneration is needed
-3. run `CodeGeneration\GenerateCode.bat`
-4. build the app projects
-5. review generated/custom split changes
-
-## What this generator currently supports well
-
-- generated repository and service surfaces driven by model conventions
-- shared list/filter/query patterns
-- split generated/custom EF setup
-- app-owned scripts and configuration
-- shared TypeScript model and enum bundle generation for generated API DTOs
-- external shared generator repo now, dotnet tool later
-
-## Controller generation modes
-
-For controllers, the recommended mode for new apps is:
-
-- `controller-stubs`
-- `controller-scaffolds`
-
-In that mode:
-
-- the real controller lives in the app repo and is never generated as a base class
-- the real controller is an explicit, non-derived controller stub marked with `!!!CODE_GEN_REPLACE!!!`
-- the scaffold file in `Generated/` contains commented endpoint examples to copy into the real controller
-
-`generated-controllers` should now be treated as a legacy migration mode only.
+Publishing to `nuget.org` is handled through the GitHub Actions `publish-tool` workflow with Trusted Publishing.
