@@ -75,6 +75,15 @@ dotnet tool install BrighterTools.CodeGenerator
 dotnet tool run brightertools-codegenerator -- init
 ```
 
+Recommended foundational data packages for generated repository and service patterns:
+
+```text
+dotnet add package BrighterTools.Data.Abstractions
+dotnet add package BrighterTools.Data.EFCore
+```
+
+These packages provide shared contracts such as `IEntity<TKey>`, `ListRequest`, and `ServiceResult<T>`, plus EF Core repository base classes such as `BaseRepository<TEntity,TKey,TUserId>`. They are consuming-app dependencies, not runtime dependencies of the generator itself.
+
 Then run generation with either:
 
 ```text
@@ -103,7 +112,7 @@ Core fields:
 ```json
 {
   "toolName": "MyApp.CodeGeneration",
-  "toolVersion": "2.0.3",
+  "toolVersion": "2.0.4",
   "rootDirectory": "..",
   "projectPath": "",
   "appProjectPath": "../App/App.csproj",

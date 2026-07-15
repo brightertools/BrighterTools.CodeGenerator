@@ -16,7 +16,7 @@ public class TemplateRendererTests
             Options = new GeneratorOptions
             {
                 ToolName = "BrighterTools.CodeGenerator",
-                ToolVersion = "2.0.3",
+                ToolVersion = "2.0.4",
                 ListRequestNamespace = "App.Dto",
                 TypeExtensionsNamespace = "App.Extensions",
                 TenantNamespace = "App.Infrastructure.Security.MultiTenancy",
@@ -39,7 +39,7 @@ public class TemplateRendererTests
         var file = Assert.Single(generator.Generate(context));
 
         Assert.Contains("This file was generated using BrighterTools.CodeGenerator", file.Content, StringComparison.Ordinal);
-        Assert.Contains("Generator version: 2.0.3", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Generator version: 2.0.4", file.Content, StringComparison.Ordinal);
         Assert.DoesNotContain("Generated on", file.Content, StringComparison.Ordinal);
     }
 }

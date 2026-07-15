@@ -23,7 +23,7 @@ public class CodeGeneratorRunnerTests
 
             var line = Assert.Single(File.ReadAllLines(historyPath));
             Assert.Contains("\"toolName\":\"BrighterTools.CodeGenerator\"", line, StringComparison.Ordinal);
-            Assert.Contains("\"toolVersion\":\"2.0.3\"", line, StringComparison.Ordinal);
+            Assert.Contains("\"toolVersion\":\"2.0.4\"", line, StringComparison.Ordinal);
             Assert.Contains("\"configPath\":\"CodeGeneration/codegen.json\"", line, StringComparison.Ordinal);
             Assert.Contains("\"repoRoot\":\".\"", line, StringComparison.Ordinal);
             Assert.Contains("\"generatedFileCount\":1", line, StringComparison.Ordinal);
@@ -105,7 +105,7 @@ public class CodeGeneratorRunnerTests
         return new GeneratorOptions
         {
             ToolName = "BrighterTools.CodeGenerator",
-            ToolVersion = "2.0.3",
+            ToolVersion = "2.0.4",
             ConfigPath = configPath,
             ConfigDirectory = configDirectory,
             RootDirectory = repoRoot,

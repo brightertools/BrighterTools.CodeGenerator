@@ -14,6 +14,7 @@ NuGet package:
 - Helps consuming repos verify generated output through cleanup, regeneration, and build steps.
 - Uses deterministic generated file headers without per-run timestamps.
 - Writes successful config-based generation runs to `CodeGeneration/generation-history.jsonl`.
+- Aligns generated BrighterTools-style data layer patterns with the foundational `BrighterTools.Data.Abstractions` and `BrighterTools.Data.EFCore` packages.
 
 ## Install From NuGet
 
@@ -39,6 +40,10 @@ pwsh ./CodeGeneration/GenerateCode.ps1
 - Consuming repos own their `CodeGeneration` folder, cleanup rules, verification rules, and wrapper scripts.
 - Windows `.bat` wrappers prefer `pwsh` and fall back to Windows PowerShell when `pwsh` is not installed.
 - Successful non-dry-run config-based generation writes a run-history entry beside `codegen.json`.
+
+## Data Foundations
+
+Generated repositories and services are intended to pair with the `BrighterTools.Data.Abstractions` and `BrighterTools.Data.EFCore` packages in consuming apps. The generator remains a build-time tool; the app still owns package references, DbContext design, tenancy, audit behavior, and persistence policy.
 
 ## More Documentation
 

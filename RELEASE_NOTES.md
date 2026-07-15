@@ -1,3 +1,19 @@
+# v2.0.4 - Data Foundations Documentation
+
+## Summary
+
+Patch release that documents the relationship between generated BrighterTools-style data layers and the shared `BrighterTools.Data` packages.
+
+## Included
+
+- Added usage guidance for `BrighterTools.Data.Abstractions` and `BrighterTools.Data.EFCore` as consuming-app dependencies.
+- Updated package and scaffold defaults to `2.0.4`.
+- Clarified that CodeGenerator remains a build-time tool and does not take runtime dependencies on the Data packages.
+
+## Breaking Changes
+
+- None.
+
 # v2.0.3 - Documentation Refresh and Publishing Follow-Up
 
 ## Summary

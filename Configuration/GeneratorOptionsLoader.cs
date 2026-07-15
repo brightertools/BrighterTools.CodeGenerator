@@ -82,7 +82,7 @@ internal static class GeneratorOptionsLoader
         return new GeneratorOptions
         {
             ToolName = string.IsNullOrWhiteSpace(rawOptions.ToolName) ? "BrighterTools.CodeGenerator" : rawOptions.ToolName,
-            ToolVersion = string.IsNullOrWhiteSpace(rawOptions.ToolVersion) ? "2.0.3" : rawOptions.ToolVersion,
+            ToolVersion = string.IsNullOrWhiteSpace(rawOptions.ToolVersion) ? "2.0.4" : rawOptions.ToolVersion,
             ToolCommand = string.IsNullOrWhiteSpace(rawOptions.ToolCommand) ? "brightertools-codegenerator" : rawOptions.ToolCommand,
             ConfigPath = fullConfigPath,
             ConfigDirectory = configDirectory,

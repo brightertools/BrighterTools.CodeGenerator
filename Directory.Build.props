@@ -22,12 +22,12 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <VersionPrefix>2.0.3</VersionPrefix>
-    <PackageReleaseNotes>v2.0.3 - Documentation refresh and publishing follow-up
+    <VersionPrefix>2.0.4</VersionPrefix>
+    <PackageReleaseNotes>v2.0.4 - Data foundations documentation
 
 Included:
-- Refined the documentation to describe the current cross-platform workflow in present-state terms.
-- Kept package, scaffold, and publishing metadata aligned for the next release.
+- Documented how generated BrighterTools-style data layers pair with BrighterTools.Data.Abstractions and BrighterTools.Data.EFCore.
+- Kept package, scaffold, and publishing metadata aligned for the next patch release.
 
 Breaking changes:
 - None.</PackageReleaseNotes>

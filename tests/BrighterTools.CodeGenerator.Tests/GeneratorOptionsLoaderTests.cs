@@ -24,7 +24,7 @@ public class GeneratorOptionsLoaderTests
                 """
 {
   "toolName": "Test.CodeGeneration",
-  "toolVersion": "2.0.3",
+  "toolVersion": "2.0.4",
   "toolCommand": "brightertools-codegenerator",
   "rootDirectory": "..",
   "projectPath": "",

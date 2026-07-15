@@ -124,7 +124,7 @@ internal sealed class CodeGenerationScaffolder
         {
             RepoName = layout.RepoName,
             ToolName = $"{SanitizeName(layout.RepoName)}.CodeGeneration",
-            ToolVersion = "2.0.3",
+            ToolVersion = "2.0.4",
             RootDirectory = ToConfigRelativePath(configDirectoryPath, layout.RepoRootPath),
             ProjectPath = string.Empty,
             AppProjectPath = layout.AppProjectPath is null ? string.Empty : ToConfigRelativePath(configDirectoryPath, layout.AppProjectPath),
