@@ -60,6 +60,10 @@ jobs:
       - name: Pack tool
         run: dotnet pack ./BrighterTools.CodeGenerator.csproj --configuration Release --no-build --output ./artifacts/nuget --configfile ./NuGet.config
 
+      - name: Smoke test the packed tool
+        shell: pwsh
+        run: ./tests/Test-PackedTool.ps1 -PackageDirectory ./artifacts/nuget
+
       - name: Upload NuGet artifacts
         uses: actions/upload-artifact@v4
         with:

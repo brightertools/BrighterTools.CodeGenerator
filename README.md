@@ -18,6 +18,16 @@ NuGet package:
 
 ## Install From NuGet
 
+Build/test this repository with stable .NET SDK 10.0.401 or a newer stable .NET 10
+feature band (selected by global.json). CI audits direct and transitive dependencies
+and fails on vulnerability warnings. MSBuild stays at 18.9.6 because 18.10 targets
+.NET 11; this is intentional, not an overlooked security update.
+
+After packing, validate the actual tool artifact with
+`pwsh ./tests/Test-PackedTool.ps1 -PackageDirectory ./artifacts/nuget`.
+It uses an isolated local feed/cache and temporary fixture, checks SQL Server defaults
+and repeatable generation, and never writes generated output into a consuming app.
+
 From the consuming repo root:
 
 ```powershell

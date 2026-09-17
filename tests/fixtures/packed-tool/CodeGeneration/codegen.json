@@ -1,0 +1,7 @@
+{
+  "rootDirectory": "..",
+  "appProjectPath": "../App/App.csproj",
+  "appDirectory": "../App",
+  "modelNamespace": "App.Domain.Models",
+  "enabledGenerators": ["repositories", "data-service-registration"]
+}

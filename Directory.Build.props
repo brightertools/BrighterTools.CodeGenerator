@@ -3,6 +3,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Deterministic>true</Deterministic>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <WarningsAsErrors>$(WarningsAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
@@ -22,15 +25,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <VersionPrefix>2.0.4</VersionPrefix>
-    <PackageReleaseNotes>v2.0.4 - Data foundations documentation
-
-Included:
-- Documented how generated BrighterTools-style data layers pair with BrighterTools.Data.Abstractions and BrighterTools.Data.EFCore.
-- Kept package, scaffold, and publishing metadata aligned for the next patch release.
-
-Breaking changes:
-- None.</PackageReleaseNotes>
+    <VersionPrefix>2.0.5</VersionPrefix>
+    <PackageReleaseNotes>v2.0.5 - Update compatible stable dependencies and .NET 10 servicing. Retain MSBuild 18.9.6 for net10.0, runtime loading configuration and SQL Server templates. Audit transitive packages and smoke-test the installed packed tool.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">

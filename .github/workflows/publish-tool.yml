@@ -36,6 +36,9 @@ jobs:
       - name: Build
         run: dotnet build ./BrighterTools.CodeGenerator.csproj --configuration Release --no-restore
 
+      - name: Test generator
+        run: dotnet test ./tests/BrighterTools.CodeGenerator.Tests/BrighterTools.CodeGenerator.Tests.csproj --configuration Release
+
       - name: Pack
         shell: bash
         run: |
@@ -45,6 +48,10 @@ jobs:
           else
             dotnet pack ./BrighterTools.CodeGenerator.csproj --configuration Release --no-build --output ./artifacts/nuget --configfile ./NuGet.config
           fi
+
+      - name: Smoke test the packed tool
+        shell: pwsh
+        run: ./tests/Test-PackedTool.ps1 -PackageDirectory ./artifacts/nuget
 
       - name: Upload NuGet artifacts
         uses: actions/upload-artifact@v4
