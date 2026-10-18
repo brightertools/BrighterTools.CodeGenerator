@@ -60,10 +60,10 @@ public partial interface I{{ model.Name }}Repository
 [GeneratedCode("{{ tool.name }}", "{{ tool.version }}")]
 public partial class {{ model.Name }}Repository : BaseRepository<{{ model.EntityTypeReference }}, {{ artifact.primary_key_type }}, {{ artifact.user_id_type }}>, I{{ model.Name }}Repository
 {
-    private readonly ApplicationDbContext _db;
+    private readonly {{ options.DbContextName }} _db;
 
     public {{ model.Name }}Repository(
-        ApplicationDbContext db,
+        {{ options.DbContextName }} db,
         ILogger<{{ model.Name }}Repository> logger,
         ITenantGetter tenantGetter)
         : base(db, logger, tenantGetter)
@@ -210,3 +210,4 @@ public partial class {{ model.Name }}Repository : BaseRepository<{{ model.Entity
         return query;
     }
 }
+

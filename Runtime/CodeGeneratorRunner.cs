@@ -17,6 +17,7 @@ internal static class CodeGeneratorRunner
 
         var allModels = await modelInspector.InspectAsync();
         var models = FilterModels(allModels, options);
+        PersistenceModelValidator.Validate(options, models);
         var enums = await enumInspector.InspectAsync();
         var apiModels = await InspectApiModelsAsync(options);
 
@@ -58,7 +59,7 @@ internal static class CodeGeneratorRunner
             writeResult.Add(WriteGeneratedFiles(options, typeScriptFiles));
         }
 
-        GenerationRunHistoryWriter.AppendIfEnabled(options, writeResult);
+        if (!options.CheckGeneratedFiles) GenerationRunHistoryWriter.AppendIfEnabled(options, writeResult);
         Console.WriteLine($"Generated {writeResult.WrittenCount} file(s).");
         return 0;
     }
@@ -73,6 +74,14 @@ internal static class CodeGeneratorRunner
             {
                 result.SkippedExistingCount++;
                 Console.WriteLine($"Skipped existing {generatedFile.RelativePath}");
+                continue;
+            }
+
+            if (options.CheckGeneratedFiles)
+            {
+                if (!File.Exists(fullPath) || File.ReadAllText(fullPath) != generatedFile.Content)
+                    throw new InvalidOperationException($"Generated output missing or stale: {generatedFile.RelativePath}");
+                Console.WriteLine($"[dry-run] {generatedFile.RelativePath}");
                 continue;
             }
 
@@ -229,3 +238,6 @@ internal static class CodeGeneratorRunner
         return await inspector.InspectAsync();
     }
 }
+
+
+

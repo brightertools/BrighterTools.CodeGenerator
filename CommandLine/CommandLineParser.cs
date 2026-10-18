@@ -37,10 +37,12 @@ internal static class CommandLineParser
     {
         string? configPath = null;
         var dryRun = false;
+        var check = false;
 
         for (var i = 0; i < args.Length; i++)
         {
             var arg = args[i];
+            if (string.Equals(arg, "--check", StringComparison.OrdinalIgnoreCase)) { check = true; dryRun = true; continue; }
             if (string.Equals(arg, "--dry-run", StringComparison.OrdinalIgnoreCase))
             {
                 dryRun = true;
@@ -72,6 +74,7 @@ internal static class CommandLineParser
             CommandKind = CommandKind.Generate,
             ConfigPath = configPath,
             DryRun = dryRun,
+            CheckGeneratedFiles = check,
             UsesLegacyGenerateMode = usesLegacyGenerateMode
         };
     }
@@ -137,3 +140,4 @@ internal static class CommandLineParser
         };
     }
 }
+

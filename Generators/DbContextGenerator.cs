@@ -21,21 +21,22 @@ public sealed class DbContextGenerator(TemplateRenderer templateRenderer) : ICod
 
         yield return new GeneratedFile
         {
-            RelativePath = Path.Combine("App", "Data", "Generated", "ApplicationDbContext.g.cs"),
+            RelativePath = Path.Combine("App", "Data", "Generated", context.Options.DbContextName + ".g.cs"),
             Content = templateRenderer.Render("dbcontext.scriban", templateModel).Trim() + Environment.NewLine
         };
 
         yield return new GeneratedFile
         {
-            RelativePath = Path.Combine("App", "Data", "Generated", "ApplicationDbContext.Persistence.g.cs"),
+            RelativePath = Path.Combine("App", "Data", "Generated", context.Options.DbContextName + ".Persistence.g.cs"),
             Content = templateRenderer.Render("dbcontext.persistence.scriban", templateModel).Trim() + Environment.NewLine
         };
 
         yield return new GeneratedFile
         {
-            RelativePath = Path.Combine("App", "Data", "ApplicationDbContext.cs"),
+            RelativePath = Path.Combine("App", "Data", context.Options.DbContextName + ".cs"),
             Content = templateRenderer.Render("dbcontext.custom.scriban", templateModel).Trim() + Environment.NewLine,
             OverwriteIfExists = false
         };
     }
 }
+

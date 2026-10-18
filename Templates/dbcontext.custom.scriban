@@ -6,10 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace {{ options.DataNamespace }};
 
-public partial class ApplicationDbContext
+public partial class {{ options.DbContextName }}
 {
     partial void ConfigureCustomModel(ModelBuilder modelBuilder)
     {
         // Add app-specific model configuration here when needed.
     }
 }
+

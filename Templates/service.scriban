@@ -90,7 +90,7 @@ public partial class {{ model.Name }}Service : I{{ model.Name }}Service
     public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> Update(Update{{ model.Name }}Request request, {{ artifact.user_id_type }}? userId = null)
     {
         if (request?.Id is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("Invalid request: Id is required.");
-        var entity = await _repo.GetById(({{ artifact.primary_key_type }})request.Id.Value, tracking: true);
+        var entity = await _repo.GetById(({{ artifact.primary_key_type }})request.Id{{ if !artifact.primary_key_is_string }}.Value{{ end }}, tracking: true);
         if (entity is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.");
 {{ for prop in model.Properties }}
 {{ if prop.IncludeInUpdateRequest }}
@@ -108,8 +108,14 @@ public partial class {{ model.Name }}Service : I{{ model.Name }}Service
     public virtual async Task<ServiceResult<{{ model.EntityTypeReference }}>> Upsert(Upsert{{ model.Name }}Request request, {{ artifact.user_id_type }}? userId = null)
     {
         if (request is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("Invalid request.");
+{{ if artifact.primary_key_is_string }}
+        var isCreate = string.IsNullOrWhiteSpace(request.Id);
+{{ else if artifact.primary_key_is_guid }}
+        var isCreate = !request.Id.HasValue || request.Id.Value == Guid.Empty;
+{{ else }}
         var isCreate = !(request.Id.HasValue && request.Id.Value > 0);
-        var entity = isCreate ? new {{ model.EntityTypeReference }}() : await _repo.GetById(({{ artifact.primary_key_type }})request.Id!.Value, tracking: true);
+{{ end }}
+        var entity = isCreate ? new {{ model.EntityTypeReference }}() : await _repo.GetById(({{ artifact.primary_key_type }})request.Id!{{ if !artifact.primary_key_is_string }}.Value{{ end }}, tracking: true);
         if (entity is null) return ServiceResult<{{ model.EntityTypeReference }}>.Fail("{{ model.Name }} not found.");
 {{ for prop in model.Properties }}
 {{ if prop.IncludeInUpdateRequest }}
@@ -247,3 +253,4 @@ public partial class {{ model.Name }}Service : I{{ model.Name }}Service
         return deleted ? ServiceResult<bool>.Success(true) : ServiceResult<bool>.Fail("Delete failed");
     }
 }
+

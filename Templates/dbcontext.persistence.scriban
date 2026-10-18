@@ -19,7 +19,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace {{ options.DataNamespace }};
 
-public partial class ApplicationDbContext
+public partial class {{ options.DbContextName }}
 {
     private static readonly HashSet<Type> TenantScopedEntityTypes =
     [
@@ -247,3 +247,4 @@ public partial class ApplicationDbContext
         }
     }
 }
+

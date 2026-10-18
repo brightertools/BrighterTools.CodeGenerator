@@ -23,7 +23,12 @@ public static class TemplateModelFactory
                 name = artifactName,
                 output_path = outputPath,
                 primary_key_type = primaryKeyType,
-                user_id_type = userIdType
+                primary_key_is_string = primaryKeyType == "string",
+                primary_key_is_guid = primaryKeyType == "Guid",
+                user_id_type = userIdType,
+                key_properties = context.Options.PersistenceKeys.TryGetValue(model.Name, out var keys)
+                    ? keys.Select(name => model.Properties.Single(p => p.Name == name)).ToArray()
+                    : model.Properties.Where(p => p.Name == "Id").ToArray()
             }
         };
     }
@@ -42,6 +47,15 @@ public static class TemplateModelFactory
             return "int";
         }
 
-        return idProperty.DisplayTypeName is "long" or "System.Int64" ? "long" : "int";
+        return idProperty.NonNullableDisplayType switch
+        {
+            "int" or "System.Int32" => "int",
+            "long" or "System.Int64" => "long",
+            "string" or "System.String" => "string",
+            "Guid" or "System.Guid" => "Guid",
+            var unsupported => throw new InvalidOperationException($"Unsupported primary key type '{unsupported}' on {model.Name}. Configure a supported key contract before generating persistence.")
+        };
     }
 }
+
+

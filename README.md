@@ -60,3 +60,17 @@ Generated repositories and services are intended to pair with the `BrighterTools
 - [usage.md](./usage.md) for consuming-repo setup, config, and workflow details
 - [publishing.md](./publishing.md) for packaging and NuGet publishing
 - [RELEASE_NOTES.md](./RELEASE_NOTES.md) for release history
+
+## Host context and identifier compatibility
+
+`dbContextName` defaults to `ApplicationDbContext`; it controls context template class/file names and repository/registration references. `registerDbContext` defaults to `true`; set it to `false` when the host already registers its EF context. This does not disable repositories/services registration. Omit the `dbcontext` generator when the host owns its mappings and migrations.
+
+Scalar repository/service/request key metadata preserves `int`, `long`, `string` and `Guid`. Unsupported scalar types are rejected rather than converted to `int`. String/GUID update and upsert templates avoid numeric nullable-key operations. This is template compatibility, not a claim that a consumer's base repository supports every key type: consumer base infrastructure must implement the generated contract, including correct assigned-key creation semantics.
+
+Persistence preflight rejects non-join models without an `Id` property. Composite keys require an explicit supported persistence contract; do not add artificial integer IDs to satisfy generation. Rendering is completed before files are written, so this diagnostic does not leave partial output.
+
+### Scoped identity reads
+
+Opt-in `persistenceMode: "scoped-read"` generates read repositories/services against `BrighterTools.Data.EFCore.Repositories.ScopedReadRepository<TEntity,TKey>`. `persistenceKeys` maps model names to ordered key property names, e.g. `{ "TenantUser": ["TenantId", "UserId"] }`; otherwise `Id` is used. Generated key records are code contracts, not mapped database entities. Register an `IReadScope<TEntity>` for every generated model; the host owns eligibility and tenant authorization. Domain commands remain explicit custom operations and must preserve their unit-of-work boundary. Do not enable CRUD DTO/controller generators for security-owned models.
+
+Use `--check` to detect missing or stale generated output without writing files or generation history. Existing custom partials are preserved. Compile and test generated output separately; a successful check does not establish correct authorization or query translation.

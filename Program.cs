@@ -35,6 +35,7 @@ internal static class Program
         }
 
         var options = GeneratorOptionsLoader.Resolve(commandLineOptions);
+        options.CheckGeneratedFiles = commandLineOptions.CheckGeneratedFiles;
         return await CodeGeneratorRunner.RunAsync(options);
     }
 
@@ -80,11 +81,11 @@ internal static class Program
 BrighterTools.CodeGenerator
 
 Usage:
-  brightertools-codegenerator generate --config <path> [--dry-run]
+  brightertools-codegenerator generate --config <path> [--dry-run | --check]
   brightertools-codegenerator init [--repo-root <path>] [--config-dir <path>] [--force]
 
 Compatibility:
-  brightertools-codegenerator --config <path> [--dry-run]
+  brightertools-codegenerator --config <path> [--dry-run | --check]
 
 Notes:
   - Relative --config paths resolve from the current working directory.
@@ -94,3 +95,4 @@ Notes:
         return 0;
     }
 }
+

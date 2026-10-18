@@ -10,10 +10,11 @@ public sealed class RepositoryGenerator(TemplateRenderer templateRenderer) : Gen
         foreach (var model in context.Models.Where(ShouldGenerate))
         {
             var path = Path.Combine("App", "Data", "Repositories", "Generated", $"{model.RepositoryName}.g.cs");
-            yield return Render(context, model, "repository", "repository.scriban", path);
+            yield return Render(context, model, "repository", context.Options.PersistenceMode == "scoped-read" ? "repository.scoped-read.scriban" : "repository.scriban", path);
         }
     }
 
     private static bool ShouldGenerate(ClassMetadata model) =>
         !model.IsBaseModel && !model.IsJsonModel && !model.IsJoinTable;
 }
+

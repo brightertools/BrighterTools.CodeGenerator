@@ -26,6 +26,10 @@ public sealed class GeneratorOptions
     public string ServiceResultNamespace { get; init; } = "App.Domain.Results";
     public string ListResultNamespace { get; init; } = "App.Domain.Results";
     public string DataNamespace { get; init; } = "App.Data";
+    public string DbContextName { get; init; } = "ApplicationDbContext";
+    public bool RegisterDbContext { get; init; } = true;
+    public string PersistenceMode { get; init; } = "crud";
+    public Dictionary<string, string[]> PersistenceKeys { get; init; } = new();
     public IReadOnlyList<string> EnumNamespacePrefixes { get; init; } = ["App.Domain.Enums", "App.Data"];
     public IReadOnlyList<string> TypeScriptModelNamespacePrefixes { get; init; } = [];
     public string TypeScriptModelsOutputPath { get; init; } = string.Empty;
@@ -51,7 +55,11 @@ public sealed class GeneratorOptions
     public IReadOnlyList<string> VerifyFrontendBuildCommands { get; init; } = [];
     public bool VerifySkipBuildLockCheck { get; init; } = true;
     public bool DryRun { get; init; }
+    public bool CheckGeneratedFiles { get; set; }
 }
+
+
+
 
 
 

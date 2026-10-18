@@ -24,7 +24,8 @@ public static class GeneratedAppDataServiceExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        services.AddDbContext<ApplicationDbContext>(options => options
+{{ if options.RegisterDbContext }}
+        services.AddDbContext<{{ options.DbContextName }}>(options => options
             .EnableSensitiveDataLogging()
             .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
             {
@@ -32,6 +33,7 @@ public static class GeneratedAppDataServiceExtensions
                 sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
             }));
 
+{{ end }}
 {{ for model in repository_models }}
         services.AddScoped<I{{ model.RepositoryName }}, {{ model.RepositoryName }}>();
 {{ end }}
@@ -43,3 +45,5 @@ public static class GeneratedAppDataServiceExtensions
         return services;
     }
 }
+
+

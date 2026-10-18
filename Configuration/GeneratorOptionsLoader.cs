@@ -105,6 +105,10 @@ internal static class GeneratorOptionsLoader
             ServiceResultNamespace = string.IsNullOrWhiteSpace(rawOptions.ServiceResultNamespace) ? "App.Domain.Results" : rawOptions.ServiceResultNamespace,
             ListResultNamespace = string.IsNullOrWhiteSpace(rawOptions.ListResultNamespace) ? "App.Domain.Results" : rawOptions.ListResultNamespace,
             DataNamespace = string.IsNullOrWhiteSpace(rawOptions.DataNamespace) ? "App.Data" : rawOptions.DataNamespace,
+            DbContextName = string.IsNullOrWhiteSpace(rawOptions.DbContextName) ? "ApplicationDbContext" : rawOptions.DbContextName,
+            RegisterDbContext = rawOptions.RegisterDbContext,
+            PersistenceMode = rawOptions.PersistenceMode,
+            PersistenceKeys = rawOptions.PersistenceKeys,
             EnumNamespacePrefixes = NormalizePrefixes(rawOptions.EnumNamespacePrefixes, ["App.Domain.Enums", "App.Data"]),
             TypeScriptModelNamespacePrefixes = NormalizePrefixes(rawOptions.TypeScriptModelNamespacePrefixes, []),
             TypeScriptModelsOutputPath = typeScriptModelsOutputPath,
@@ -209,3 +213,5 @@ internal static class GeneratorOptionsLoader
             .ToArray();
     }
 }
+
+

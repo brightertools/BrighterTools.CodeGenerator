@@ -24,6 +24,8 @@ public class GeneratorOptionsLoaderTests
                 """
 {
   "toolName": "Test.CodeGeneration",
+  "dbContextName": "HostDbContext",
+  "registerDbContext": false,
   "toolVersion": "2.0.4",
   "toolCommand": "brightertools-codegenerator",
   "rootDirectory": "..",
@@ -57,6 +59,8 @@ public class GeneratorOptionsLoaderTests
 """);
 
             var options = GeneratorOptionsLoader.LoadFromConfigPath("CodeGeneration/codegen.json", dryRun: false, workingDirectory: repoRoot);
+            Assert.Equal("HostDbContext", options.DbContextName);
+            Assert.False(options.RegisterDbContext);
 
             Assert.Equal(repoRoot, options.RootDirectory);
             Assert.Equal(Path.Combine(repoRoot, "App", "App.csproj"), options.AppProjectPath);
@@ -115,3 +119,5 @@ public class GeneratorOptionsLoaderTests
         return path;
     }
 }
+
+

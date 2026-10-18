@@ -34,17 +34,17 @@ using Microsoft.AspNetCore.DataProtection;
 namespace {{ options.DataNamespace }};
 
 [GeneratedCode("{{ tool.name }}", "{{ tool.version }}")]
-public partial class ApplicationDbContext : DbContext
+public partial class {{ options.DbContextName }} : DbContext
 {
     private readonly ICurrentUserService _currentUserService;
-    private readonly ILogger<ApplicationDbContext> _logger;
+    private readonly ILogger<{{ options.DbContextName }}> _logger;
 {{ if has_encrypted_json }}    private readonly IDataProtectionProvider? _dataProtectionProvider;{{ end }}
 
     public int CurrentTenantId { get; set; }
 
-    public ApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options,
-        ILogger<ApplicationDbContext> logger,
+    public {{ options.DbContextName }}(
+        DbContextOptions<{{ options.DbContextName }}> options,
+        ILogger<{{ options.DbContextName }}> logger,
         ICurrentUserService currentUserService,
         ITenantGetter? tenantGetter = null{{ if has_encrypted_json }},
         IDataProtectionProvider? dataProtectionProvider = null{{ end }}) : base(options)
@@ -139,3 +139,4 @@ public partial class ApplicationDbContext : DbContext
 {{ end }}
     partial void ConfigureCustomModel(ModelBuilder modelBuilder);
 }
+

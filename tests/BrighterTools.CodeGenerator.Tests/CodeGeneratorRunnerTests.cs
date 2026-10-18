@@ -95,6 +95,25 @@ public class CodeGeneratorRunnerTests
         }
     }
 
+    [Fact]
+    public async Task CheckDetectsDriftWithoutOverwritingFiles()
+    {
+        var root = CreateTemporaryRepository();
+        try
+        {
+            var options = CreateGeneratorOptions(root);
+            await CodeGeneratorRunner.RunAsync(options);
+            options.CheckGeneratedFiles = true;
+            await CodeGeneratorRunner.RunAsync(options);
+            var generated = Directory.GetFiles(Path.Combine(root, "App", "Data", "Repositories", "Generated"), "*.g.cs").Single();
+            File.AppendAllText(generated, "// drift");
+            var before = File.ReadAllText(generated);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => CodeGeneratorRunner.RunAsync(options));
+            Assert.Equal(before, File.ReadAllText(generated));
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
     private static GeneratorOptions CreateGeneratorOptions(string repoRoot)
     {
         var configDirectory = Path.Combine(repoRoot, "CodeGeneration");
@@ -225,3 +244,5 @@ public class Widget
         };
     }
 }
+
+
