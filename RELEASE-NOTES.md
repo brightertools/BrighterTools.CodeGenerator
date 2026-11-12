@@ -1,3 +1,9 @@
+# Release 2.0.6 — 12 November 2026
+
+Serviced cryptography dependencies and aligned default scaffold version; configured generator contracts unchanged.
+
+See [HANDOFF.md](HANDOFF.md) for consumer requirements and publication evidence.
+
 # Release 2.0.5 — 2026-09-17
 
 This release updates the existing library; SQL Server defaults and host-owned

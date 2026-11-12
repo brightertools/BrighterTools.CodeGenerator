@@ -25,8 +25,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <VersionPrefix>2.0.5</VersionPrefix>
-    <PackageReleaseNotes>v2.0.5 - Update compatible stable dependencies and .NET 10 servicing. Retain MSBuild 18.9.6 for net10.0, runtime loading configuration and SQL Server templates. Audit transitive packages and smoke-test the installed packed tool.</PackageReleaseNotes>
+    <VersionPrefix>2.0.6</VersionPrefix>
+    <PackageReleaseNotes>v2.0.6 - Pin cryptography Xml and Pkcs to serviced 10.0.13; align default scaffold metadata.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
